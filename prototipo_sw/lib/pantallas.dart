@@ -25,16 +25,39 @@ class SongsState extends State<Songs>{
   Widget build(BuildContext context){
     return Scaffold(
       body: _buildSongs(),
+
     );
   }
 
   Widget _buildSongs(){
 
-    return ListView.builder(
-        itemCount: _songs.length,
-        itemBuilder: (context, i){
-          return _buildRow(_songs[i], _singers[i]);
-    }
+    return Column (
+      children: <Widget>[
+        Container(
+          height: 850.0,
+          child:
+          ListView.builder(
+              itemCount: _songs.length,
+              itemBuilder: (context, i){
+                return _buildRow(_songs[i], _singers[i]);
+              }
+          ),
+        ),
+        Row (
+        //crossAxisAlignment: CrossAxisAlignment.baseline,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.play_arrow),
+              onPressed: (){
+
+              },
+            ),
+            Text('Cancion actual')
+          ],
+        )
+      ]
+
+
     );
   }
 
@@ -58,7 +81,7 @@ class SongsState extends State<Songs>{
         },
       ),
 
-    );
+    ) ;
   }
 
   //final<List> FavSongsList{

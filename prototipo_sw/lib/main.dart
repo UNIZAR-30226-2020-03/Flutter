@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.cyan,
       ),
-      home: FirstScreen(),
+      home: Home(),
     );
   }
 }

@@ -56,6 +56,7 @@ class LoginState extends State<Login> {
                   return 'Please enter a valid email';
                 }
               },
+
             ),
             TextFormField(
               decoration:  InputDecoration(
