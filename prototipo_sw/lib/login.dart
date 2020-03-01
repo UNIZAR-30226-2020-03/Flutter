@@ -22,7 +22,7 @@ class LoginState extends State<Login> {
   String _email, _password;
 
   // Toggles the password show status
-  void _toggle() {
+    void _toggle() {
     setState(() {
       _obscureText = !_obscureText;
     });
@@ -58,11 +58,20 @@ class LoginState extends State<Login> {
               },
             ),
             TextFormField(
-              decoration: const InputDecoration(
+              decoration:  InputDecoration(
                   labelText: 'Password',
-                  icon: const Padding(
+                  icon:  Padding(
                       padding: const EdgeInsets.only(top: 15.0),
-                      child: const Icon(Icons.lock, color: Colors.cyan))),
+                      child: const Icon(Icons.lock, color: Colors.cyan)),
+                suffixIcon: IconButton(
+                    icon : Icon(_obscureText ? Icons.remove_red_eye : Icons.visibility_off),
+                    color : Colors.blueGrey ,
+                    onPressed: (){
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                    ),),
               validator: (val) => val.length < 6 ? 'Password too short.' : null,
               onSaved: (val) => _password = val,
               obscureText: _obscureText,
