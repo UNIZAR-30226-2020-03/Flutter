@@ -87,7 +87,7 @@ class RegisterState extends State<Register> {
             ),
             new FlatButton(
                 onPressed: _toggle,
-                child: new Text(_obscureText ? "Show" : "Hide")),
+                child: new Text(_obscureText ? "Show Password" : "Hide Passwors")),
             Center(
               child: RaisedButton(
                 onPressed: () {
