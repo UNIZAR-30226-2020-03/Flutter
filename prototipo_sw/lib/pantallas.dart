@@ -71,7 +71,7 @@ class SongsState extends State<Songs>{
     return Column (
       children: <Widget>[
         Container(
-          height: 850.0,
+          height: 865.0,
           child:
           ListView.builder(
               itemCount: _songsName.length,
@@ -80,9 +80,9 @@ class SongsState extends State<Songs>{
               }
           ),
         ),
+
         Row (
-          
-        //crossAxisAlignment: CrossAxisAlignment.baseline,
+          //crossAxisAlignment: CrossAxisAlignment.baseline,
           children: <Widget>[
             IconButton(
               icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
@@ -118,7 +118,8 @@ class SongsState extends State<Songs>{
               },
             )
           ],
-        )
+        ),
+
       ]
 
 

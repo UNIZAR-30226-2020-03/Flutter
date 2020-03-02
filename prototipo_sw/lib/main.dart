@@ -35,7 +35,9 @@ class Home extends StatefulWidget{
   }
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+
+
   int _currentIndex = 0;
   final List<Widget> _children = [
     HomeScreen(),
@@ -44,14 +46,40 @@ class _HomeState extends State<Home> {
     SearchScreen(),
     ProfileScreen(),
   ];
+
+  AnimationController _controller;
+
+  Animation logoAnimation;
+
+  @override
+  void initState(){
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 4));
+
+    logoAnimation =  Tween(begin: 50.0, end: 150.0).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: Interval(0, 1, curve: Curves.elasticInOut)));
+
+    _controller.forward();
+    _controller.addListener(() {
+      setState(() {});
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
 
       appBar: AppBar(
+          elevation: 0.0,
+          brightness: Brightness.light,
         centerTitle: true,
         title: Center(
-          child: AppBarImage()
+          child: Image.asset('images/logoDefinitivo3.png', width: logoAnimation.value, height: logoAnimation.value)
         )
       ),
       body: _children[_currentIndex],
@@ -84,6 +112,7 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
+
   }
 
   void tabbed(int index){
@@ -91,13 +120,14 @@ class _HomeState extends State<Home> {
       _currentIndex = index;
     });
   }
+
 }
-class AppBarImage extends StatelessWidget{
+class AppBarImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AssetImage assetImage = AssetImage('images/logoDefinitivo3.png');
     Image image = Image(image: assetImage, width: 150.0, height: 150.0);
-    return Container(child: image,);
+    return Container(child: image);
   }
 }
 
