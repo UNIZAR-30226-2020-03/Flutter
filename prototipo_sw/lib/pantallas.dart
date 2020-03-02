@@ -27,12 +27,20 @@ class Songs extends StatefulWidget{
 class SongsState extends State<Songs>{
   AudioPlayer audioPlayer;
   AudioCache audioCache;
+
   final _songsName = ['TT', 'Fancy', 'cancion 3', 'cancion 4'];
   final _singers = ['Twice', 'Twice', 'grupo 3', 'grupo 4'];
   final _songs = ['twice-tt-mv.mp3','twice-fancy-mv.mp3','',''];
   final _saved = Set();
+
   bool reproduciendo = false;
   var currentSong = 0;
+
+  double volume = 1;
+  double currentVolume;
+
+  Duration duration = Duration();
+  Duration position = Duration();
 
   @override
   void initState(){
@@ -40,6 +48,14 @@ class SongsState extends State<Songs>{
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
 
+    /*audioPlayer.positionHandler = (p) => setState((){
+      position = p;
+    });
+
+    audioPlayer.durationHandler = (p) => setState((){
+      duration = p;
+    });
+    */
   }
 
   @override
@@ -65,6 +81,7 @@ class SongsState extends State<Songs>{
           ),
         ),
         Row (
+          
         //crossAxisAlignment: CrossAxisAlignment.baseline,
           children: <Widget>[
             IconButton(
@@ -82,7 +99,24 @@ class SongsState extends State<Songs>{
 
               },
             ),
-            Text(_songsName[currentSong])
+            Container(
+              child: Text(_songsName[currentSong],
+                overflow: TextOverflow.clip,),
+              width: 225.0,
+
+            ),
+            Icon(Icons.volume_up),
+            Slider(
+              value: volume,
+              max: 3.0,
+              onChanged: (double vol){
+
+                setState(() {
+                  volume = vol;
+                  audioPlayer.setVolume(volume);
+                });
+              },
+            )
           ],
         )
       ]
