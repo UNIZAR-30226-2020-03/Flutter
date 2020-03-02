@@ -39,7 +39,7 @@ class SongsState extends State<Songs>{
     super.initState();
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
-    print('init');
+
   }
 
   @override
@@ -82,7 +82,7 @@ class SongsState extends State<Songs>{
 
               },
             ),
-            Text('Cancion actual')
+            Text(_songsName[currentSong])
           ],
         )
       ]
