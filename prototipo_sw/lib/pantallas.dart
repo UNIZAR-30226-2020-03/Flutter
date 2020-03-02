@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class HomeScreen extends StatelessWidget{
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +15,8 @@ class HomeScreen extends StatelessWidget{
   }
 }
 
+
+
 class Songs extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
@@ -18,9 +25,21 @@ class Songs extends StatefulWidget{
 }
 
 class SongsState extends State<Songs>{
-  final _songs = ['cancion 1', 'cancion 2', 'cancion 3', 'cancion 4'];
-  final _singers = ['grupo 1', 'grupo 2', 'grupo 3', 'grupo 4'];
+  AudioPlayer audioPlayer;
+  AudioCache audioCache;
+  final _songsName = ['TT', 'cancion 2', 'cancion 3', 'cancion 4'];
+  final _singers = ['Twice', 'grupo 2', 'grupo 3', 'grupo 4'];
+  final _songs = ['twice-tt-mv.mp3','','',''];
   final _saved = Set();
+
+  @override
+  void initState(){
+    super.initState();
+    audioPlayer = AudioPlayer();
+    audioCache = AudioCache(fixedPlayer: audioPlayer);
+    print('init');
+  }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -37,9 +56,9 @@ class SongsState extends State<Songs>{
           height: 850.0,
           child:
           ListView.builder(
-              itemCount: _songs.length,
+              itemCount: _songsName.length,
               itemBuilder: (context, i){
-                return _buildRow(_songs[i], _singers[i]);
+                return _buildRow(_songsName[i], _singers[i], _songs [i]);
               }
           ),
         ),
@@ -61,21 +80,24 @@ class SongsState extends State<Songs>{
     );
   }
 
-  Widget _buildRow(var song, var group){
-    final savedSongs = _saved.contains(song);
+  Widget _buildRow(var songName, var group, var song){
+    final savedSongs = _saved.contains(songName);
     return ListTile(
-      title: Text(song),
+      title: Text(songName),
       subtitle: Text(group),
       leading: Icon(Icons.play_arrow),
+      onTap: (){
+        audioCache.play(song);
+      },
       trailing: IconButton(
         icon : Icon(savedSongs ? Icons.favorite : Icons.favorite_border),
         color : savedSongs ? Colors.red : null,
         onPressed: (){
           setState((){
             if(savedSongs){
-              _saved.remove(song);
+              _saved.remove(songName);
             }else{
-              _saved.add(song);
+              _saved.add(songName);
             }
           });
         },
