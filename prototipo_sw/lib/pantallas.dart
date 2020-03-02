@@ -31,6 +31,8 @@ class SongsState extends State<Songs>{
   final _singers = ['Twice', 'grupo 2', 'grupo 3', 'grupo 4'];
   final _songs = ['twice-tt-mv.mp3','','',''];
   final _saved = Set();
+  bool reproduciendo = false;
+  var currentSong = 0;
 
   @override
   void initState(){
@@ -66,8 +68,17 @@ class SongsState extends State<Songs>{
         //crossAxisAlignment: CrossAxisAlignment.baseline,
           children: <Widget>[
             IconButton(
-              icon: Icon(Icons.play_arrow),
+              icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
               onPressed: (){
+                if (reproduciendo){
+                  audioPlayer.stop();
+                }else {
+                  audioCache.play(_songs[currentSong]);
+                }
+
+                setState(() {
+                  reproduciendo = !reproduciendo;
+                });
 
               },
             ),
@@ -88,6 +99,9 @@ class SongsState extends State<Songs>{
       leading: Icon(Icons.play_arrow),
       onTap: (){
         audioCache.play(song);
+        setState(() {
+          reproduciendo = true;
+        });
       },
       trailing: IconButton(
         icon : Icon(savedSongs ? Icons.favorite : Icons.favorite_border),
