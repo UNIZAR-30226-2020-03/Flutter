@@ -27,9 +27,9 @@ class Songs extends StatefulWidget{
 class SongsState extends State<Songs>{
   AudioPlayer audioPlayer;
   AudioCache audioCache;
-  final _songsName = ['TT', 'cancion 2', 'cancion 3', 'cancion 4'];
-  final _singers = ['Twice', 'grupo 2', 'grupo 3', 'grupo 4'];
-  final _songs = ['twice-tt-mv.mp3','','',''];
+  final _songsName = ['TT', 'Fancy', 'cancion 3', 'cancion 4'];
+  final _singers = ['Twice', 'Twice', 'grupo 3', 'grupo 4'];
+  final _songs = ['twice-tt-mv.mp3','twice-fancy-mv.mp3','',''];
   final _saved = Set();
   bool reproduciendo = false;
   var currentSong = 0;
@@ -60,7 +60,7 @@ class SongsState extends State<Songs>{
           ListView.builder(
               itemCount: _songsName.length,
               itemBuilder: (context, i){
-                return _buildRow(_songsName[i], _singers[i], _songs [i]);
+                return _buildRow(_songsName[i], _singers[i], _songs [i], i);
               }
           ),
         ),
@@ -91,7 +91,7 @@ class SongsState extends State<Songs>{
     );
   }
 
-  Widget _buildRow(var songName, var group, var song){
+  Widget _buildRow(var songName, var group, var song, var index){
     final savedSongs = _saved.contains(songName);
     return ListTile(
       title: Text(songName),
@@ -99,6 +99,7 @@ class SongsState extends State<Songs>{
       leading: Icon(Icons.play_arrow),
       onTap: (){
         audioCache.play(song);
+        currentSong = index;
         setState(() {
           reproduciendo = true;
         });
