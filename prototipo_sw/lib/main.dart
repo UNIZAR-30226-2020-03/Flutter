@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/first_screen.dart';
+import 'package:prototipo_sw/login.dart';
 import 'pantallas.dart';
 
 void main() => runApp(MyApp());
@@ -75,6 +76,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return Scaffold(
 
       appBar: AppBar(
+        backgroundColor: Colors.white,
           elevation: 0.0,
           brightness: Brightness.light,
         centerTitle: true,
