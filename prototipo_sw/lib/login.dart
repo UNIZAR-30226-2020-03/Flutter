@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/home.dart';
 import 'package:prototipo_sw/main.dart';
 
 class Login extends StatefulWidget {
@@ -53,17 +54,16 @@ class LoginState extends State<Login> {
               onSaved: (val) => _email = val,
               validator: (String value) {
                 if (!value.contains('@')) {
-                  return 'Please enter a valid email';
+                  return 'Por favor, introduce un email válido';
                 }
               },
-
             ),
             TextFormField(
               decoration:  InputDecoration(
-                  labelText: 'Password',
-                  icon:  Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: const Icon(Icons.lock, color: Colors.cyan)),
+                labelText: 'Contraseña',
+                icon:  Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: const Icon(Icons.lock, color: Colors.cyan)),
                 suffixIcon: IconButton(
                     icon : Icon(_obscureText ? Icons.remove_red_eye : Icons.visibility_off),
                     color : Colors.blueGrey ,
@@ -73,13 +73,13 @@ class LoginState extends State<Login> {
                       });
                     },
                     ),),
-              validator: (val) => val.length < 6 ? 'Password too short.' : null,
+              validator: (val) => val.length < 6 ? 'Contraseña demasiado corta( 6 caracteres como mínimo).' : null,
               onSaved: (val) => _password = val,
               obscureText: _obscureText,
             ),
             new FlatButton(
                 onPressed: _toggle,
-                child: new Text(_obscureText ? "Show" : "Hide")),
+                child: new Text(_obscureText ? "Mostrar" : "Ocultar")),
             Center(
               child: RaisedButton(
                 onPressed: () {
@@ -97,7 +97,7 @@ class LoginState extends State<Login> {
                         SnackBar(content: Text('Incorrect credentials')));
                   }
                 },
-                child: Text('Submit'),
+                child: Text('Iniciar Sesión'),
               ),
             ),
           ],

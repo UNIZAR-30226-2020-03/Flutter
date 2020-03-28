@@ -4,9 +4,6 @@ import 'package:audioplayers/audioplayers.dart';
 
 class HomeScreen extends StatelessWidget{
 
-
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -14,8 +11,6 @@ class HomeScreen extends StatelessWidget{
 
   }
 }
-
-
 
 class Songs extends StatefulWidget{
   @override
@@ -191,19 +186,6 @@ class PlaylistScreen extends StatelessWidget{
 
 class SearchScreen extends StatelessWidget{
   var string = 'Search';
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-        body: Center(
-            child: Text(string)
-        ),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget{
-  var string = 'Profile';
   @override
   Widget build(BuildContext context) {
 
