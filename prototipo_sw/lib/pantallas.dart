@@ -65,14 +65,15 @@ class SongsState extends State<Songs>{
 
     return Column (
       children: <Widget>[
-        Container(
-          height: 865.0,
-          child:
-          ListView.builder(
+        Expanded(
+          child: Container(
+            child:
+            ListView.builder(
               itemCount: _songsName.length,
               itemBuilder: (context, i){
                 return _buildRow(_songsName[i], _singers[i], _songs [i], i);
               }
+            ),
           ),
         ),
 
@@ -94,11 +95,11 @@ class SongsState extends State<Songs>{
 
               },
             ),
-            Container(
-              child: Text(_songsName[currentSong],
-                overflow: TextOverflow.clip,),
-              width: 225.0,
-
+            Expanded(
+              child: Container(
+                child: Text(_songsName[currentSong],
+                  overflow: TextOverflow.clip,),
+              ),
             ),
             Icon(Icons.volume_up),
             Slider(

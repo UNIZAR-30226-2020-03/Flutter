@@ -86,9 +86,6 @@ class LoginState extends State<Login> {
                   // devolverá true si el formulario es válido, o falso si
                   // el formulario no es válido.
                   if (_formKey.currentState.validate()) {
-                    // Si el formulario es válido, queremos mostrar un Snackbar
-                    Scaffold.of(context).
-                    showSnackBar(SnackBar(content: Text('Processing Data')));
                     Navigator.push(context, MaterialPageRoute(builder: (context) => Home(), fullscreenDialog: true));
                   }
                   else if (!_formKey.currentState.validate()) {
