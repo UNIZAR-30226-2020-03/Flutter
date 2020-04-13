@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:prototipo_sw/login.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class Register extends StatefulWidget {
   @override
@@ -22,7 +26,7 @@ class RegisterState extends State<Register> {
 
   // Initially password is obscure
   bool _obscureText = true;
-  String _email, _username, _password, _description;
+  String _email, _username, _name, _surname, _password, _description;
   Country _selected;
 
   // Toggles the password show status
@@ -34,8 +38,72 @@ class RegisterState extends State<Register> {
   // Set Value from the checkbox
   void _value1Changed(bool value) => setState(() => _value1 = value);
 
-  artistas(){
-    
+  artistas(Map data) async {
+    var jsonData = null;
+    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
+    var response = await http.post("https://upbeatproyect.herokuapp.com/artista/save",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data)
+    );
+    print('Response status: ${response.statusCode}');
+    if(response.statusCode == 200){
+      jsonData = json.decode(response.body);
+      setState(() {
+        sharedPreferences.setString("token", jsonData['token']);
+        Navigator .of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => Home()),(Route<dynamic> route) => false);
+      });
+    }
+  }
+
+  usuarios(Map data) async{
+    var jsonData = null;
+    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
+    var response = await http.post("https://upbeatproyect.herokuapp.com/usuario/save",  
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data)
+    );
+    print('Response status: ${response.statusCode}');
+    if(response.statusCode == 200){
+      print("He entrado al decode");
+      jsonData = json.decode(response.body);
+      setState(() {
+        sharedPreferences.setString("token", jsonData['token']);
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => Home()),(Route<dynamic> route) => false);
+      });
+    }
+  }
+
+  signUp() async {
+    if (_value1){
+      Map data = {
+        'correo': _email,
+        'nombre': _name,
+        'apellidos': _surname,
+        'pais': _selected.name,
+        'username': _username,
+        'contrasenya': _password,
+        'nombre_artista': _username,
+        'descripcion': _description
+      };
+      artistas(data);
+
+    }
+    else {
+      print("He entrado a usuario");
+      Map data = {
+        'nombre': _name,
+        'apellidos': _surname,
+        'contrasenya': _password,
+        'correo': _email,
+        'username': _username,
+        'pais': _selected.name,
+      };
+      usuarios(data);
+    }   
   }
 
   @override
@@ -72,7 +140,7 @@ class RegisterState extends State<Register> {
                     labelText: 'Email *',
                     //font:
                   ),
-                  onSaved: (val) => _email = val,
+                  onChanged: (val) => _email = val,
                   validator: (String value) {
                     if (!value.contains('@')) {
                       return 'Por favor, introduce un email válido';
@@ -87,7 +155,7 @@ class RegisterState extends State<Register> {
                     labelText: 'Nombre *',
                     //font:
                   ),
-                  onSaved: (val) => _username = val,
+                  onChanged: (val) => _name = val,
                   validator: (String value) {
                     if (value.isEmpty) {
                       return 'Por favor introduce un nombre correcto';
@@ -102,7 +170,7 @@ class RegisterState extends State<Register> {
                     labelText: 'Apellidos *',
                     //font:
                   ),
-                  onSaved: (val) => _username = val,
+                  onChanged: (val) => _surname = val,
                   validator: (String value) {
                     if (value.isEmpty) {
                       return 'Por favor, introduce un apellido correcto';
@@ -117,7 +185,7 @@ class RegisterState extends State<Register> {
                     labelText: 'Nombre de usuario *',
                     //font:
                   ),
-                  onSaved: (val) => _username = val,
+                  onChanged: (val) => _username = val,
                   validator: (String value) {
                     if (value.isEmpty) {
                       return 'Por favor, introduce un nombre de usuario correcto';
@@ -142,8 +210,8 @@ class RegisterState extends State<Register> {
                       },
                     )
                   ),
-                  validator: (val) => val.length < 6 ? 'Contraseña demasiado corta( 6 caracteres como mínimo).' : null,
-                  onSaved: (val) => _password = val,
+                  validator: (val) => val.length < 6 ? 'Contraseña demasiado corta(6 caracteres como mínimo).' : null,
+                  onChanged: (val) => _password = val,
                   obscureText: _obscureText,
                   
                 ),
@@ -170,11 +238,11 @@ class RegisterState extends State<Register> {
                       ret = 'Contraseña demasiado corta( 6 caracteres como mínimo).';
                     } 
                     if(val != _password){
+                      print(_password);
                       ret = 'Las contraseñas no coinciden';
                     }
                     return ret;
                   },
-                  onSaved: (val) => _password = val,
                   obscureText: _obscureText,
                 ),
                 Row(
@@ -204,7 +272,7 @@ class RegisterState extends State<Register> {
                         //font:
                       ),
                       maxLines: 7,
-                      onSaved: (val) => _description = val
+                      onChanged: (val) => _description = val
                     ),
                   ],
                 ),
@@ -218,15 +286,9 @@ class RegisterState extends State<Register> {
                       // el formulario no es válido.
                       if (_formKey.currentState.validate()) {
                         // Si el formulario es válido, queremos mostrar un Snackbar
-                        Scaffold.of(context).
-                        showSnackBar(SnackBar(content: Text('Processing Data')));
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => Login(), fullscreenDialog: true));
+                        signUp();
                       }
                       else if (!_formKey.currentState.validate()) {
-                        Scaffold.of(context).
-                        showSnackBar(
-                            SnackBar(content: Text('Incorrect credentials')));
                       }
                     },
                     child: Text('Registrarse'),
