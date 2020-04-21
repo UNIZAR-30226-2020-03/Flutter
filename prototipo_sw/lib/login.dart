@@ -35,8 +35,6 @@ class LoginState extends State<Login> {
     });
   }
 
-  Future<Usuario> futureUsuario;
-
   signIn() async{
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/get/$_password/$_email');
     SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
@@ -55,11 +53,7 @@ class LoginState extends State<Login> {
         sharedPreferences.setString("token", jsonData['token']);
         Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Correo o contraseña incorrectos');
-    }
+    } 
   }
 
   @override
@@ -121,7 +115,7 @@ class LoginState extends State<Login> {
                   // devolverá true si el formulario es válido, o falso si
                   // el formulario no es válido.
                   if (_formKey.currentState.validate()) {
-                    futureUsuario = signIn();
+                    signIn();
                   }
                   else if (!_formKey.currentState.validate()) {
                     Scaffold.of(context).

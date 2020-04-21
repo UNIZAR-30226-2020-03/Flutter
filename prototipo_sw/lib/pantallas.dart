@@ -73,20 +73,18 @@ class SongsState extends State<Songs>{
       );
 
     }else if (_currentScreenHomeBool[1]){
-    return Scaffold(
-      body: _buildSongs(),
+      return Scaffold(
+        body: _buildSongs(),
     );
 
     }else{
-    return Scaffold(
-    body: _buildAll(),
-    );
+      return Scaffold(
+        body: _buildAll(),
+      );
     }
-
   }
 
   Widget _buildAll(){
-
     return Container(
       color: Colors.white,
       child: Column (
@@ -105,7 +103,6 @@ class SongsState extends State<Songs>{
                   //color: Colors.cyan,
                   fontSize: 34.0,
                   fontWeight: FontWeight.w600
-
               ),
               )
             ],
@@ -114,20 +111,16 @@ class SongsState extends State<Songs>{
             height: 10,
           ),
           Container(
-
             height: 770,
             child: Stack(
               children: <Widget>[
                 Container(
-
                   height: 730,
                   child:
                   ListView.builder(
                       scrollDirection: Axis.vertical,
                       itemCount: _songsName.length,
                       itemBuilder: (context, i){
-
-
                         return Column(
                           children: <Widget>[
                             _buildRow(_songsName[i], _singers[i], _songs [i], i),
@@ -141,18 +134,11 @@ class SongsState extends State<Songs>{
                       }
                   ),
                 ),
-
                 _buildSongBar(),
               ],
             ),
           ),
-
-
-
-
         ]
-
-
       ),
     );
   }
