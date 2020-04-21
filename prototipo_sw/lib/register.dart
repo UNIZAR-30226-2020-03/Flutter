@@ -2,10 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/home.dart';
-import 'package:prototipo_sw/login.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+
+class ScreenArguments {
+  final String email;
+  final String pass;
+
+  ScreenArguments(this.email, this.pass);
+}
 
 class Register extends StatefulWidget {
   @override
@@ -52,7 +59,7 @@ class RegisterState extends State<Register> {
       jsonData = json.decode(response.body);
       setState(() {
         sharedPreferences.setString("token", jsonData['token']);
-        Navigator .of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => Home()),(Route<dynamic> route) => false);
+        Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
     }
   }
@@ -72,7 +79,7 @@ class RegisterState extends State<Register> {
       jsonData = json.decode(response.body);
       setState(() {
         sharedPreferences.setString("token", jsonData['token']);
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => Home()),(Route<dynamic> route) => false);
+        Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
     }
   }

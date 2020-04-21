@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/Profile.dart';
 import 'package:prototipo_sw/pantallas.dart';
+import 'package:prototipo_sw/register.dart';
 
 class Home extends StatefulWidget{
 
@@ -12,15 +13,11 @@ class Home extends StatefulWidget{
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
+  String _email, _password;
 
+  List<Widget> _children;
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    HomeScreen(),
-    FavScreen(),
-    PlaylistScreen(),
-    SearchScreen(),
-    ProfileScreen(),
-  ];
+  
 
   AnimationController _controller;
 
@@ -29,6 +26,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   void initState(){
     super.initState();
+    
+    
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 4));
 
@@ -39,13 +38,27 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     _controller.forward();
     _controller.addListener(() {
-      setState(() {});
+      setState(() {
+      });
     });
 
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final ScreenArguments arguments = ModalRoute.of(context).settings.arguments;
+    setState(() {
+      _password = arguments.pass;
+      _email = arguments.email;
+      _children = [
+    HomeScreen(),
+    FavScreen(),
+    PlaylistScreen(),
+    SearchScreen(),
+    ProfileScreen(_email, _password),
+  ];
+    });
 
     return Scaffold(
 
