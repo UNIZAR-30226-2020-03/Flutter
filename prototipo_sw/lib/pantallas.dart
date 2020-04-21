@@ -231,6 +231,10 @@ class SongsState extends State<Songs>{
 
 
 
+
+
+
+
                 _buildSongBar(),
               ],
             ),
@@ -249,6 +253,56 @@ class SongsState extends State<Songs>{
             height: 10,
           ),
           _buildFullTopMenu(),
+          Container(
+            height: 15,
+          ),
+          Row(
+            children: <Widget>[
+              Text('     Albums',
+                style: TextStyle(
+                  //color: Colors.cyan,
+                    fontSize: 34.0,
+                    fontWeight: FontWeight.w600
+
+                ),
+              )
+            ],
+          ),
+          Container(
+            height: 10,
+          ),
+          Container(
+
+            height: 770,
+            child: Stack(
+              children: <Widget>[
+                Container(
+
+                  height: 730,
+                  child:
+
+
+
+                  ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _playlists.length,
+                      itemBuilder: (context, i) {
+                        print(i);
+
+
+                        return _buildRowPlaylist(_playlists[i], i);
+                      }
+
+                  ),
+
+                ),
+
+
+
+                _buildSongBar(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -263,6 +317,56 @@ class SongsState extends State<Songs>{
             height: 10,
           ),
           _buildFullTopMenu(),
+          Container(
+            height: 15,
+          ),
+          Row(
+            children: <Widget>[
+              Text('     Podcasts',
+                style: TextStyle(
+                  //color: Colors.cyan,
+                    fontSize: 34.0,
+                    fontWeight: FontWeight.w600
+
+                ),
+              )
+            ],
+          ),
+          Container(
+            height: 10,
+          ),
+          Container(
+
+            height: 770,
+            child: Stack(
+              children: <Widget>[
+                Container(
+
+                  height: 730,
+                  child:
+
+
+
+                  ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _playlists.length,
+                      itemBuilder: (context, i) {
+                        print(i);
+
+
+                        return _buildRowPlaylist(_playlists[i], i);
+                      }
+
+                  ),
+
+                ),
+
+
+
+                _buildSongBar(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -463,61 +567,66 @@ BoxDecoration _playlistDecoration(){
 
       child: Align(
         alignment: Alignment.bottomCenter,
-        child: Container(
+        child: InkWell(
+          onTap: (){
 
-          height: 40,
-          child: Row (
+          },
+          child: Container(
+
+            height: 40,
+            child: Row (
 
 
 
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              IconButton(
-                icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
-                onPressed: (){
-                  if (reproduciendo){
-                    audioPlayer.stop();
-                  }else {
-                    audioCache.play(_songs[currentSong]);
-                  }
-
-                  setState(() {
-                    reproduciendo = !reproduciendo;
-                  });
-
-                },
-              ),
-              Container(
-                child: Text(_songsName[currentSong],
-                  overflow: TextOverflow.clip,),
-                width: 200.0,
-
-              ),
-              IconButton(
-                icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
-                onPressed: (){
-                  setState((){
-                    if(volume > 0.0){
-                      volumeP = volume;
-                      volume = 0.0;
-                    }else{
-                      volume = volumeP;
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
+                  onPressed: (){
+                    if (reproduciendo){
+                      audioPlayer.stop();
+                    }else {
+                      audioCache.play(_songs[currentSong]);
                     }
-                  });
-                },
-              ),
-              Slider(
-                value: volume,
-                max: 1.0,
-                onChanged: (double vol){
 
-                  setState(() {
-                    volume = vol;
-                    audioPlayer.setVolume(volume);
-                  });
-                },
-              )
-            ],
+                    setState(() {
+                      reproduciendo = !reproduciendo;
+                    });
+
+                  },
+                ),
+                Container(
+                  child: Text(_songsName[currentSong],
+                    overflow: TextOverflow.clip,),
+                  width: 200.0,
+
+                ),
+                IconButton(
+                  icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
+                  onPressed: (){
+                    setState((){
+                      if(volume > 0.0){
+                        volumeP = volume;
+                        volume = 0.0;
+                      }else{
+                        volume = volumeP;
+                      }
+                    });
+                  },
+                ),
+                Slider(
+                  value: volume,
+                  max: 1.0,
+                  onChanged: (double vol){
+
+                    setState(() {
+                      volume = vol;
+                      audioPlayer.setVolume(volume);
+                    });
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
