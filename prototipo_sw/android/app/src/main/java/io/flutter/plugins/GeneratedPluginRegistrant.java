@@ -15,6 +15,7 @@ public final class GeneratedPluginRegistrant {
   public static void registerWith(@NonNull FlutterEngine flutterEngine) {
     ShimPluginRegistry shimPluginRegistry = new ShimPluginRegistry(flutterEngine);
       xyz.luan.audioplayers.AudioplayersPlugin.registerWith(shimPluginRegistry.registrarFor("xyz.luan.audioplayers.AudioplayersPlugin"));
+      rocks.biessek.fluttercountrypicker.FlutterCountryPickerPlugin.registerWith(shimPluginRegistry.registrarFor("rocks.biessek.fluttercountrypicker.FlutterCountryPickerPlugin"));
     flutterEngine.getPlugins().add(new io.flutter.plugins.pathprovider.PathProviderPlugin());
   }
 }

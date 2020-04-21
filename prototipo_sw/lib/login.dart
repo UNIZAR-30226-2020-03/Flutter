@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:prototipo_sw/main.dart';
+import 'package:prototipo_sw/register.dart';
+import 'package:prototipo_sw/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import 'dart:convert';
+
+import 'model/usuario.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -28,6 +35,33 @@ class LoginState extends State<Login> {
     });
   }
 
+  Future<Usuario> futureUsuario;
+
+  signIn() async{
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/get/$_password/$_email');
+    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      var jsonData = json.decode(response.body);
+      setState(() {
+        sharedPreferences.setString("token", jsonData['token']);
+        Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
+      });
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Correo o contraseña incorrectos');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Cree un widget Form usando el _formKey que creamos anteriormente
@@ -50,46 +84,44 @@ class LoginState extends State<Login> {
                 labelText: 'Email',
                 //font:
               ),
-              onSaved: (val) => _email = val,
+              onChanged: (val) => _email = val,
               validator: (String value) {
                 if (!value.contains('@')) {
-                  return 'Please enter a valid email';
+                  return 'Por favor, introduce un email válido';
                 }
               },
-
             ),
             TextFormField(
               decoration:  InputDecoration(
-                  labelText: 'Password',
-                  icon:  Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: const Icon(Icons.lock, color: Colors.cyan)),
+                labelText: 'Contraseña',
+                icon:  Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: const Icon(Icons.lock, color: Colors.cyan)
+                ),
                 suffixIcon: IconButton(
-                    icon : Icon(_obscureText ? Icons.remove_red_eye : Icons.visibility_off),
-                    color : Colors.blueGrey ,
-                    onPressed: (){
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                    ),),
-              validator: (val) => val.length < 6 ? 'Password too short.' : null,
-              onSaved: (val) => _password = val,
+                  icon : Icon(_obscureText ? Icons.remove_red_eye : Icons.visibility_off),
+                  color : Colors.blueGrey ,
+                  onPressed: (){
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                ),
+              ),
+              validator: (val) => val.length < 6 ? 'Contraseña demasiado corta( 6 caracteres como mínimo).' : null,
+              onChanged: (val) => _password = val,
               obscureText: _obscureText,
             ),
             new FlatButton(
                 onPressed: _toggle,
-                child: new Text(_obscureText ? "Show" : "Hide")),
+                child: new Text(_obscureText ? "Mostrar" : "Ocultar")),
             Center(
               child: RaisedButton(
-                onPressed: () {
+                onPressed: () async {
                   // devolverá true si el formulario es válido, o falso si
                   // el formulario no es válido.
                   if (_formKey.currentState.validate()) {
-                    // Si el formulario es válido, queremos mostrar un Snackbar
-                    Scaffold.of(context).
-                    showSnackBar(SnackBar(content: Text('Processing Data')));
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Home(), fullscreenDialog: true));
+                    futureUsuario = signIn();
                   }
                   else if (!_formKey.currentState.validate()) {
                     Scaffold.of(context).
@@ -97,7 +129,7 @@ class LoginState extends State<Login> {
                         SnackBar(content: Text('Incorrect credentials')));
                   }
                 },
-                child: Text('Submit'),
+                child: Text('Iniciar Sesión'),
               ),
             ),
           ],
