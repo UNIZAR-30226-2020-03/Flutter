@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:prototipo_sw/register.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   final String _password;
@@ -110,8 +110,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         color: Colors.red,
                         image: DecorationImage(
-                          image: NetworkImage('https://scontent-mad1-1.xx.fbcdn.net/v/t1.0-9/16196015_10154888128487744_6901111466535510271_n.png?_nc_cat=103&_nc_sid=85a577&_nc_ohc=Lzgz1RIuAd4AX9FoBP7&_nc_ht=scontent-mad1-1.xx&oh=892e609c9eb0df5f1ca268c9aafda4e9&oe=5EA5B597'),
-                          fit: BoxFit.contain
+                          image: NetworkImage('https://www.pngitem.com/pimgs/m/78-786501_black-avatar-png-user-icon-png-transparent-png.png'),
+                          fit: BoxFit.fill
                         ),
                         borderRadius: BorderRadius.all(
                           Radius.circular(75.0)
@@ -148,9 +148,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration:
                           InputDecoration(labelText: 'Nombre de Usuario')
                     ),
-                    SizedBox(
-                      height:20.0
-                    ),
                     TextField(
                       style: TextStyle(
                         fontSize: 20.0,
@@ -171,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _name = val;
                           update();
                         });
-                                              },
+                      },
                       decoration: InputDecoration(labelText: 'Nombre')
                     ),
                     TextField(
@@ -194,6 +191,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         update();
                       },
                       decoration: InputDecoration(labelText: 'Apellidos')
+                    ),
+                    SizedBox(
+                      height: 20
+                    ),
+                    Container(
+                      width: 220,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: new BorderRadius.circular(15.0),
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Colors.lightBlue[300],
+                            Colors.lightBlue[200],
+                            Colors.lightBlueAccent[100],
+                          ],
+                        ),
+                      ),
+                      child: RaisedButton(
+                        color: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(15.0),
+                            side: BorderSide(color: Colors.black)),
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('change_pass', arguments: jsonData);
+                        },
+                        textColor: Colors.white,
+                        child: const Text('Modificar contraseña', style: TextStyle(fontSize: 15)),
+                      ),
                     ),
                   ]
                 )

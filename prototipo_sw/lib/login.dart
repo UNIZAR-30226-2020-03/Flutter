@@ -34,6 +34,20 @@ class LoginState extends State<Login> {
     });
   }
 
+  creteAlertDialog(BuildContext context){
+    return showDialog(context: context, builder: (context){
+      return AlertDialog(
+        title: Text("Email o contraseña incorrecta"),
+        actions: <Widget>[
+          Icon(
+            Icons.warning,
+            color: Colors.red,
+          )
+        ],
+      );
+    });
+  }
+
   signIn() async{
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/get/$_password/$_email');
     final response = await http.get(
@@ -51,6 +65,9 @@ class LoginState extends State<Login> {
         Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
     } 
+    else {
+      creteAlertDialog(context);
+    }
   }
 
   @override
