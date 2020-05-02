@@ -17,6 +17,5 @@ public final class GeneratedPluginRegistrant {
       xyz.luan.audioplayers.AudioplayersPlugin.registerWith(shimPluginRegistry.registrarFor("xyz.luan.audioplayers.AudioplayersPlugin"));
       rocks.biessek.fluttercountrypicker.FlutterCountryPickerPlugin.registerWith(shimPluginRegistry.registrarFor("rocks.biessek.fluttercountrypicker.FlutterCountryPickerPlugin"));
     flutterEngine.getPlugins().add(new io.flutter.plugins.pathprovider.PathProviderPlugin());
-    flutterEngine.getPlugins().add(new io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin());
   }
 }
