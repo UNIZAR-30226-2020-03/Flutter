@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:prototipo_sw/register.dart';
 
@@ -43,6 +42,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: jsonEncode(data)
     );
     print('Response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      if (this.mounted) {
+        setState(() {
+          jsonData = json.decode(response.body);
+          _username = jsonData['username'];
+          _name = jsonData['nombre'];
+          _apellidos = jsonData['apellidos'];
+        });
+      }
+    }
   }
 
   Future<String> getUserData() async{
@@ -55,23 +66,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
-      // then parse the JSON
-      if (this.mounted) {
-        setState(() {
-          jsonData = json.decode(response.body);
-          _username = jsonData['username'];
-          _name = jsonData['nombre'];
-          _apellidos = jsonData['apellidos'];
-        });
-      }
+    // then parse the JSON
+      setState(() {
+        jsonData = json.decode(response.body);
+        _username = jsonData['username'];
+        _name = jsonData['nombre'];
+        _apellidos = jsonData['apellidos'];
+      });
     } 
     return ('Success');
+  }
+
+  Future _future;
+
+  @override
+  void initState(){
+    _future = getUserData();
+    super.initState();
   }
 
  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getUserData(),
+      future: _future,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
         else return Scaffold(
@@ -82,9 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 clipper: getClipper(),
                   ),
                   Positioned(
-                width: 350.0,
+                width: 320.0,
                 left: 25.0,
-                top: MediaQuery.of(context).size.height / 7,
+                top: MediaQuery.of(context).size.height / 8,
                 child: Column(
                   children: <Widget> [
                     Container(
@@ -123,8 +140,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                       ),
                       onChanged: (val) {
-                        _username = val;
-                        update();
+                        setState(() {
+                          _username = val;
+                          update();
+                        });
                       },
                       decoration:
                           InputDecoration(labelText: 'Nombre de Usuario')
@@ -148,9 +167,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                       ),
                       onChanged: (val) {
-                        _name = val;
-                        update();
-                      },
+                        setState(() {
+                          _name = val;
+                          update();
+                        });
+                                              },
                       decoration: InputDecoration(labelText: 'Nombre')
                     ),
                     TextField(
@@ -190,7 +211,7 @@ class getClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size){
     var path = new Path();
-    path.lineTo(0.0, size.height/1.9);
+    path.lineTo(0.0, size.height/2.25);
     path.lineTo(size.width + 125, 0.0);
     return path;
   }

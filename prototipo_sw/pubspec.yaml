@@ -18,6 +18,7 @@ environment:
 
 dependencies:
   flutter_country_picker: ^0.1.6
+  google_fonts: ^0.3.9
   audioplayers: ^0.14.0
   flutter:
     sdk: flutter
@@ -49,6 +50,7 @@ flutter:
   - images/logoDefinitivo1.png
   - images/logoDefinitivo2.png
   - images/logoDefinitivo3.png
+  - images/appleMusic.png
   - images/logoDefinitivo4.png
   - images/logoDefinitivo5.png
   - assets/twice-tt-mv.mp3
