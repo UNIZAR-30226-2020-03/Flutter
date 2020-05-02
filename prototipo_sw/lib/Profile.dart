@@ -174,6 +174,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       decoration: InputDecoration(labelText: 'Apellidos')
                     ),
+                    FloatingActionButton(
+                      backgroundColor: Colors.grey[800],
+                      foregroundColor: Colors.orange[900],
+                      onPressed: () async{
+                       Navigator.of(context).pushNamed('createChat',arguments: User(uid: user.uid));
+                      },
+                    )
                   ]
                 )
               )
