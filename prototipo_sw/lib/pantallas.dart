@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 
 class HomeScreen extends StatelessWidget{
 
@@ -111,11 +111,11 @@ class SongsState extends State<Songs>{
             height: 10,
           ),
           Container(
-            height: 770,
+            height: 540,
             child: Stack(
               children: <Widget>[
                 Container(
-                  height: 730,
+                  height: 490,
                   child:
                   ListView.builder(
                       scrollDirection: Axis.vertical,
@@ -186,12 +186,12 @@ class SongsState extends State<Songs>{
           ),
           Container(
 
-            height: 770,
+            height: 540,
             child: Stack(
               children: <Widget>[
                 Container(
 
-                  height: 730,
+                  height: 490,
                   child:
 
 
@@ -254,12 +254,12 @@ class SongsState extends State<Songs>{
           ),
           Container(
 
-            height: 770,
+            height: 540,
             child: Stack(
               children: <Widget>[
                 Container(
 
-                  height: 730,
+                  height: 490,
                   child:
 
 
@@ -318,12 +318,12 @@ class SongsState extends State<Songs>{
           ),
           Container(
 
-            height: 770,
+            height: 540,
             child: Stack(
               children: <Widget>[
                 Container(
 
-                  height: 730,
+                  height: 490,
                   child:
 
 
@@ -357,38 +357,38 @@ Widget _buildFullTopMenu(){
     return Row(
       children: <Widget>[
         Container(
-          width: 45,
+          width: 0,
         ),
         SizedBox(
-          width: 50,
+          width: 47,
           child: _buildTopMenu(0),
         ),
         Container(
-          width: 5,
+          width: 0,
         ),
         SizedBox(
-          width: 80,
+          width: 68,
           child: _buildTopMenu(1),
         ),
         Container(
-          width: 5,
-        ),
-        Container(
-          width: 90,
-          child: _buildTopMenu(2),
-        ),
-        Container(
-          width: 5,
+          width: 0,
         ),
         Container(
           width: 80,
+          child: _buildTopMenu(2),
+        ),
+        Container(
+          width: 0,
+        ),
+        Container(
+          width: 79,
           child: _buildTopMenu(3),
         ),
         Container(
-          width: 5,
+          width: 0,
         ),
         Container(
-          width: 100,
+          width: 86,
           child: _buildTopMenu(4),
         ),
 
@@ -579,7 +579,7 @@ BoxDecoration _playlistDecoration(){
                 Container(
                   child: Text(_songsName[currentSong],
                     overflow: TextOverflow.clip,),
-                  width: 200.0,
+                  width: 72.0,
 
                 ),
                 IconButton(

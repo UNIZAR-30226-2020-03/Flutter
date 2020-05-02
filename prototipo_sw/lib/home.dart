@@ -54,7 +54,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       _children = [
     HomeScreen(),
     FavScreen(),
-    PlaylistScreen(),
     SearchScreen(),
     ProfileScreen(_email, _password),
   ];
@@ -84,10 +83,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           BottomNavigationBarItem(
             icon: new Icon(Icons.favorite),
             title: new Text('Favorites'),
-          ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.list),
-            title: new Text('Playlists'),
           ),
           BottomNavigationBarItem(
             icon: new Icon(Icons.search),

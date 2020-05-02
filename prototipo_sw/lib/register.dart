@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -47,7 +46,6 @@ class RegisterState extends State<Register> {
 
   artistas(Map data) async {
     var jsonData = null;
-    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
     var response = await http.post("https://upbeatproyect.herokuapp.com/artista/save",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -58,7 +56,6 @@ class RegisterState extends State<Register> {
     if(response.statusCode == 200){
       jsonData = json.decode(response.body);
       setState(() {
-        sharedPreferences.setString("token", jsonData['token']);
         Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
     }
@@ -66,8 +63,7 @@ class RegisterState extends State<Register> {
 
   usuarios(Map data) async{
     var jsonData = null;
-    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
-    var response = await http.post("https://upbeatproyect.herokuapp.com/usuario/save",  
+    var response = await http.post("https://upbeatproyect.herokuapp.com/usuario/save",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -78,7 +74,6 @@ class RegisterState extends State<Register> {
       print("He entrado al decode");
       jsonData = json.decode(response.body);
       setState(() {
-        sharedPreferences.setString("token", jsonData['token']);
         Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
     }

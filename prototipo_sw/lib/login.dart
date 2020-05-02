@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/register.dart';
 import 'package:prototipo_sw/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
@@ -37,7 +36,6 @@ class LoginState extends State<Login> {
 
   signIn() async{
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/get/$_password/$_email');
-    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
     final response = await http.get(
       uri,
       headers: <String, String>{
@@ -50,7 +48,6 @@ class LoginState extends State<Login> {
       // then parse the JSON
       var jsonData = json.decode(response.body);
       setState(() {
-        sharedPreferences.setString("token", jsonData['token']);
         Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
       });
     } 
