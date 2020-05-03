@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/Profile.dart';
-import 'package:prototipo_sw/change_pass.dart';
 import 'package:prototipo_sw/first_screen.dart';
 import 'package:prototipo_sw/login.dart';
+import 'package:prototipo_sw/songScreen.dart';
 import 'home.dart';
 import 'pantallas.dart';
 import 'register.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         'login': (context) => Login(),
         'register': (context) => Register(),
         'home': (context) => Home(),
-        'change_pass': (context) => ChangePass()
+        'song': (context) => SongScreen(),
       }
     );
   }

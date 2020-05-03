@@ -20,6 +20,7 @@ dependencies:
   flutter_country_picker: ^0.1.6
   google_fonts: ^0.3.9
   audioplayers: ^0.14.0
+  file_picker: ^1.7.1
   flutter:
     sdk: flutter
 
