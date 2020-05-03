@@ -109,6 +109,7 @@ class RegisterState extends State<Register> {
         'username': _username,
         'pais': _selected.name,
       };
+      print(_name);
       usuarios(data);
     }   
   }
@@ -164,6 +165,7 @@ class RegisterState extends State<Register> {
                   ),
                   onChanged: (val) => _name = val,
                   validator: (String value) {
+                    print(_name);
                     if (value.isEmpty) {
                       return 'Por favor introduce un nombre correcto';
                     }

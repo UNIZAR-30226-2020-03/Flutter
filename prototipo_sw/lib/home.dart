@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prototipo_sw/Profile.dart';
 import 'package:prototipo_sw/pantallas.dart';
 import 'package:prototipo_sw/register.dart';
+import 'package:prototipo_sw/searchScreen.dart';
 
 class Home extends StatefulWidget{
 
@@ -49,12 +50,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     final ScreenArguments arguments = ModalRoute.of(context).settings.arguments;
     setState(() {
-      _password = arguments.pass;
-      _email = arguments.email;
+      _password = arguments.pass; //acordarse de cambiar esto: _password = arguments.pass;
+      _email = arguments.email; //_email = arguments.email;
       _children = [
     HomeScreen(),
     FavScreen(),
-    PlaylistScreen(),
     SearchScreen(),
     ProfileScreen(_email, _password),
   ];
@@ -81,10 +81,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             icon: new Icon(Icons.home),
             title: new Text('Home'),
           ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.favorite),
-            title: new Text('Favorites'),
-          ),
+
           BottomNavigationBarItem(
             icon: new Icon(Icons.list),
             title: new Text('Playlists'),

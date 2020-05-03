@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'sizeConfig.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatelessWidget{
@@ -16,6 +17,7 @@ class HomeScreen extends StatelessWidget{
 class Songs extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
+    print('songs');
     return SongsState();
   }
 }
@@ -43,8 +45,10 @@ class SongsState extends State<Songs>{
   Duration position = Duration();
 
   var _currentScreenHome = 0;
-  var _currentScreenHomeBool = [true,false,false,false,false];
-  final _ScreensHome = ['All', 'Songs', 'Playlists', 'Albums', 'Podcasts'];
+  var _currentScreenHomeBool = [true,false,false,false];
+  final _ScreensHome = [ 'Songs', 'Playlists', 'Albums', 'Podcasts'];
+
+  //double tam_pantalla = SizeConfig.screenWidth;
 
   @override
   void initState(){
@@ -57,24 +61,24 @@ class SongsState extends State<Songs>{
 
   @override
   Widget build(BuildContext context){
-    if (_currentScreenHomeBool[4]){
+
+    //SizeConfig().init(context);
+
+
+
+    if (_currentScreenHomeBool[3]){
       return Scaffold(
         body: _buildPodcasts(),
       );
 
-    }else if (_currentScreenHomeBool[3]){
+    }else if (_currentScreenHomeBool[2]){
       return Scaffold(
         body: _buildAlbums(),
       );
 
-    }else if (_currentScreenHomeBool[2]){
-      return Scaffold(
-        body: _buildPlayLists(),
-      );
-
     }else if (_currentScreenHomeBool[1]){
       return Scaffold(
-        body: _buildSongs(),
+        body: _buildPlayLists(),
     );
 
     }else{
@@ -354,43 +358,33 @@ class SongsState extends State<Songs>{
   }
 
 Widget _buildFullTopMenu(){
+
+
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Container(
-          width: 45,
-        ),
+
         SizedBox(
-          width: 50,
+          width: 74,
           child: _buildTopMenu(0),
         ),
-        Container(
-          width: 5,
-        ),
+
         SizedBox(
-          width: 80,
+          width: 88,
           child: _buildTopMenu(1),
         ),
+
         Container(
-          width: 5,
-        ),
-        Container(
-          width: 90,
+          width: 83,
           child: _buildTopMenu(2),
         ),
+
         Container(
-          width: 5,
-        ),
-        Container(
-          width: 80,
+          width: 94,
           child: _buildTopMenu(3),
         ),
-        Container(
-          width: 5,
-        ),
-        Container(
-          width: 100,
-          child: _buildTopMenu(4),
-        ),
+
+
 
 
       ],
@@ -412,7 +406,7 @@ Widget _buildFullTopMenu(){
 
               } else{
                 _currentScreenHome = screen;
-                for(int i = 0; i<5; i++){
+                for(int i = 0; i<4; i++){
                   _currentScreenHomeBool[i]=false;
                 }
                 _currentScreenHomeBool[screen]=true;
@@ -544,17 +538,19 @@ BoxDecoration _playlistDecoration(){
 
 
   Widget _buildSongBar(){
+
+
     return Positioned.fill(
 
       child: Align(
         alignment: Alignment.bottomCenter,
         child: InkWell(
           onTap: (){
-
+            Navigator.of(context).pushNamed('song', arguments: reproduciendo);
           },
           child: Container(
 
-            height: 40,
+            height: 30,
             child: Row (
 
 
@@ -576,11 +572,13 @@ BoxDecoration _playlistDecoration(){
 
                   },
                 ),
-                Container(
-                  child: Text(_songsName[currentSong],
-                    overflow: TextOverflow.clip,),
-                  width: 200.0,
+                Expanded(
+                  child: Container(
+                    child: Text(_songsName[currentSong],
+                      overflow: TextOverflow.clip,),
 
+
+                  ),
                 ),
                 IconButton(
                   icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
@@ -631,28 +629,3 @@ class FavScreen extends StatelessWidget{
   }
 }
 
-class PlaylistScreen extends StatelessWidget{
-  var string = 'PlayLists';
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      body: Center(
-          child: Text(string)
-      ),
-    );
-  }
-}
-
-class SearchScreen extends StatelessWidget{
-  var string = 'Search';
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-        body: Center(
-            child: Text(string)
-        ),
-    );
-  }
-}
