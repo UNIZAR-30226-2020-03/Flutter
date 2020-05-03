@@ -48,7 +48,9 @@ class SongsState extends State<Songs>{
   var _currentScreenHomeBool = [true,false,false,false];
   final _ScreensHome = [ 'Songs', 'Playlists', 'Albums', 'Podcasts'];
 
-  //double tam_pantalla = SizeConfig.screenWidth;
+  double tam_pantalla_alt = SizeConfig.screenHeight;
+
+
 
   @override
   void initState(){
@@ -62,7 +64,11 @@ class SongsState extends State<Songs>{
   @override
   Widget build(BuildContext context){
 
-    //SizeConfig().init(context);
+
+    SizeConfig().init(context);
+
+
+    print(tam_pantalla_alt);
 
 
 
@@ -89,6 +95,9 @@ class SongsState extends State<Songs>{
   }
 
   Widget _buildAll(){
+    double tam_body = tam_pantalla_alt -10-15-34-40-200;
+
+    print(tam_body);
     return Container(
       color: Colors.white,
       child: Column (
@@ -115,11 +124,11 @@ class SongsState extends State<Songs>{
             height: 10,
           ),
           Container(
-            height: 770,
+            height: tam_body,
             child: Stack(
               children: <Widget>[
                 Container(
-                  height: 730,
+                  height: tam_body-40,
                   child:
                   ListView.builder(
                       scrollDirection: Axis.vertical,
