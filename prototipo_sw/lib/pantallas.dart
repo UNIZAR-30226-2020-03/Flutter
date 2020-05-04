@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'sizeConfig.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 
 class HomeScreen extends StatelessWidget{
 

@@ -62,7 +62,7 @@ class LoginState extends State<Login> {
       // then parse the JSON
       var jsonData = json.decode(response.body);
       setState(() {
-        Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
+        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password));
       });
     } 
     else {

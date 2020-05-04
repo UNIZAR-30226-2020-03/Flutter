@@ -56,7 +56,7 @@ class RegisterState extends State<Register> {
     if(response.statusCode == 200){
       jsonData = json.decode(response.body);
       setState(() {
-        Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
+        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password));
       });
     }
   }
@@ -74,7 +74,7 @@ class RegisterState extends State<Register> {
       print("He entrado al decode");
       jsonData = json.decode(response.body);
       setState(() {
-        Navigator.of(context).pushNamed('home', arguments: ScreenArguments(_email, _password) );
+        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password));
       });
     }
   }

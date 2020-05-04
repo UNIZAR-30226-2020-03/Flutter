@@ -5,7 +5,7 @@ import 'package:prototipo_sw/first_screen.dart';
 import 'package:prototipo_sw/login.dart';
 import 'package:prototipo_sw/songScreen.dart';
 import 'home.dart';
-import 'pantallas.dart';
+
 import 'register.dart';
 
 void main() => runApp(MyApp());
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         'register': (context) => Register(),
         'home': (context) => Home(),
         'song': (context) => SongScreen(),
-        'change_pass': (context) => ChangePass()
+        'change_pass': (context) => ChangePass(),
       }
     );
   }

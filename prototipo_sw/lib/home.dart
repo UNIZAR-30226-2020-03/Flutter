@@ -55,7 +55,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       _children = [
     HomeScreen(),
     FavScreen(),
-    SearchScreen(),
+    SearchList(_email),
     ProfileScreen(_email, _password),
   ];
     });
