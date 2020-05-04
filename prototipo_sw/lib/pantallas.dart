@@ -48,7 +48,7 @@ class SongsState extends State<Songs>{
   var _currentScreenHomeBool = [true,false,false,false];
   final _ScreensHome = [ 'Songs', 'Playlists', 'Albums', 'Podcasts'];
 
-  double tam_pantalla_alt = SizeConfig.screenHeight;
+
 
 
 
@@ -68,7 +68,7 @@ class SongsState extends State<Songs>{
     SizeConfig().init(context);
 
 
-    print(tam_pantalla_alt);
+
 
 
 
@@ -95,6 +95,7 @@ class SongsState extends State<Songs>{
   }
 
   Widget _buildAll(){
+    double tam_pantalla_alt = SizeConfig.screenHeight;
     double tam_body = tam_pantalla_alt -10-15-34-40-200;
 
     print(tam_body);
