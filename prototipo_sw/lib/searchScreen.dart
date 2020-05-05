@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:prototipo_sw/Profile.dart';
 
 
 class SearchList extends StatefulWidget {
@@ -202,7 +201,12 @@ class _ChildItemState extends State<ChildItem> {
       print (response2.statusCode);
       if (response2.statusCode == 200) {
         var ret = json.decode(response2.body);
-        if(ret == 0){
+        if (correo == me) {
+          setState(() {
+            follow = Icon(null);
+          });
+        }
+        else if(ret == 0){
           setState(() {
             follow = Icon(Icons.check);
           });
@@ -279,8 +283,8 @@ followUser(String me, String friend) async {
       trailing: IconButton(
         icon: follow,
         onPressed: () {
-          if(follow.icon == Icons.person_add)followUser(widget.me , widget.user);
-          else unfollowUser(widget.me , widget.user);
+          if(follow.icon == Icons.person_add) followUser(widget.me , widget.user);
+          else if (follow.icon == Icons.check) unfollowUser(widget.me , widget.user);
         } 
       ),
       //onTap: PANTALLA DE PERFIL DEL USUARIO --> COPYPASTEAR QUITANDO OPCIONES DE UPDATE.

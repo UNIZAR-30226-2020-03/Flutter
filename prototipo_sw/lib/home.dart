@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/Profile.dart';
+import 'package:prototipo_sw/favScreen.dart';
 import 'package:prototipo_sw/pantallas.dart';
 import 'package:prototipo_sw/register.dart';
 import 'package:prototipo_sw/searchScreen.dart';
@@ -54,7 +55,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       _email = arguments.email; //_email = arguments.email;
       _children = [
     HomeScreen(),
-    FavScreen(),
+    FavScreen(_email),
     SearchList(_email),
     ProfileScreen(_email, _password),
   ];

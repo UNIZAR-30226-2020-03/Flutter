@@ -35,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'username': _username,
         'contrasenya': _password
     };
-    var response = await http.put("https://upbeatproyect.herokuapp.com/usuario/update/$_email",  
+    var response = await http.put("https://upbeatproyect.herokuapp.com/usuario/updateUser/$_email",  
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
