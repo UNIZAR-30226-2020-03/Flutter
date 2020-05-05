@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'Profile_only_read.dart';
+
 
 class SearchList extends StatefulWidget {
 
@@ -179,6 +181,7 @@ class ChildItem extends StatefulWidget {
 
 class _ChildItemState extends State<ChildItem> {
   Icon follow = new Icon(Icons.person_add);
+  String correo;
 
   following(String me, String friend) async {
     var userFriend;
@@ -193,7 +196,7 @@ class _ChildItemState extends State<ChildItem> {
       // If the server did return a 200 OK response,
       // then parse the JSON
       userFriend = json.decode(response.body);
-      String correo = userFriend['correo'];
+      correo = userFriend['correo'];
       var uri2 = Uri.https('upbeatproyect.herokuapp.com','/usuario/following/$me/$correo');
       final response2 = await http.get(
         uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
@@ -228,7 +231,7 @@ class _ChildItemState extends State<ChildItem> {
     // If the server did return a 200 OK response,
     // then parse the JSON
     userFriend = json.decode(response.body);
-    String correo = userFriend['correo'];
+    correo = userFriend['correo'];
     var uri2 = Uri.https('upbeatproyect.herokuapp.com','/usuario/unfollow/$me/$correo');
     final response2 = await http.put(
       uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
@@ -255,7 +258,7 @@ followUser(String me, String friend) async {
     // If the server did return a 200 OK response,
     // then parse the JSON
     userFriend = json.decode(response.body);
-    String correo = userFriend['correo'];
+    correo = userFriend['correo'];
     var uri2 = Uri.https('upbeatproyect.herokuapp.com','/usuario/follow/$me/$correo');
     final response2 = await http.put(
       uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
@@ -287,7 +290,7 @@ followUser(String me, String friend) async {
           else if (follow.icon == Icons.check) unfollowUser(widget.me , widget.user);
         } 
       ),
-      //onTap: PANTALLA DE PERFIL DEL USUARIO --> COPYPASTEAR QUITANDO OPCIONES DE UPDATE.
+      onTap: () => Navigator.of(context).pushNamed('profileOnlyR', arguments: correo)
     );
   }
 }
