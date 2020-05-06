@@ -1,8 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'sizeConfig.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:audiofileplayer/audiofileplayer.dart';
+import 'dart:io' as io;
 
 class HomeScreen extends StatelessWidget{
 
@@ -48,45 +55,119 @@ class SongsState extends State<Songs>{
   var _currentScreenHomeBool = [true,false,false,false];
   final _ScreensHome = [ 'Songs', 'Playlists', 'Albums', 'Podcasts'];
 
+  var jsonData;
+  var _nombre;
+  var _nombre2;
+  var cancion;
+  Future _future;
+  ByteData _audioByteData;
+  ByteData data;
 
+
+  Future<void> streamSong() async{
+    print('streamSong');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/getStreamUrl/true damage');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response status stream: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      setState(() {
+
+        print(response.body);
+        print('--');
+        //jsonData = json.decode(response.body);
+        cancion = response.body;
+
+        print(cancion);
+        print('--');
+      });
+
+    }
+    return ('Success');
+  }
+
+
+  Future<String> getSongs() async{
+    print('getSongs');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/allSongs');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      setState(() {
+
+        print(response.body);
+        jsonData = json.decode(response.body);
+        print(jsonData[0]);
+        _nombre = jsonData[0];
+        print(_nombre);
+        _nombre2 = _nombre['nombre'];
+        cancion = _nombre['path'];
+
+        print(_nombre2);
+
+      });
+
+    }
+    return ('Success');
+  }
+
+  void _loadAudioByteData() async {
+    print('loadAudio');
+    //print(cancion);
+    _audioByteData = await rootBundle.load(cancion);
+    //io.File file = io.File('assets/twice-fancy-mv.mp3');
+    //var byte = await file.readAsBytes();
+    Uint8List bytes = utf8.encode(cancion);
+    print(bytes);
+    data = bytes.buffer.asByteData();
+    print(data);
+    setState(() {});
+  }
 
 
 
   @override
   void initState(){
     super.initState();
+    _future = streamSong();
+    print('1');
+    _loadAudioByteData();
+    print('2');
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
-
-
   }
 
   @override
   Widget build(BuildContext context){
-
+    //_loadAudioByteData();
 
     SizeConfig().init(context);
-
-
-
-
-
 
     if (_currentScreenHomeBool[3]){
       return Scaffold(
         body: _buildPodcasts(),
       );
-
     }else if (_currentScreenHomeBool[2]){
       return Scaffold(
         body: _buildAlbums(),
       );
-
     }else if (_currentScreenHomeBool[1]){
       return Scaffold(
         body: _buildPlayLists(),
     );
-
     }else{
       return Scaffold(
         body: _buildAll(),
@@ -103,6 +184,29 @@ class SongsState extends State<Songs>{
       color: Colors.white,
       child: Column (
         children: <Widget>[
+          FutureBuilder(
+            future: _future,
+            builder: (context, snapshot){
+
+              return IconButton(
+                icon: Icon(Icons.play_circle_outline),
+                onPressed: (){
+                  print('presionado');
+                  //Audio audio = Audio.load('assets/twice-fancy-mv.mp3');
+                  //List<int> bytes = utf8.encode(cancion);
+                  //ByteData byte = bytes;
+                  //ByteData _audioByteData = rootBundle.load(cancion);
+                  //Audio audio = Audio.loadFromByteData(data);
+                  //audio.play();
+                  print(cancion);
+                  Audio audio = Audio.loadFromRemoteUrl(cancion);
+                  audio.play();
+                  print('____');
+                  //audio.dispose();
+                },
+              );
+            },
+          ),
           Container(
             height: 10,
           ),
@@ -285,7 +389,7 @@ class SongsState extends State<Songs>{
                         print(i);
 
 
-                        return _buildRowPlaylist(_playlists[i], i);
+                        return _buildRowAlbum(_playlists[i], i);
                       }
 
                   ),
@@ -504,6 +608,7 @@ Widget _buildRowPlaylist(var playlistName, var index){
           Column(
             children: <Widget>[
               Container(
+
                 width: 175,
                 height: 175,
                 decoration: _playlistDecoration(),
@@ -520,6 +625,7 @@ Widget _buildRowPlaylist(var playlistName, var index){
 
 BoxDecoration _playlistDecoration(){
   return BoxDecoration(
+    color: Colors.white,
     border: Border(
       left: BorderSide(
         width: 2.0,
@@ -541,10 +647,92 @@ BoxDecoration _playlistDecoration(){
       ),
       
     ),
+    boxShadow: [
+      BoxShadow(
+        color:Colors.cyan,
+        offset: Offset(14,0),
+      ),
+      BoxShadow(
+        color:Colors.white,
+        offset: Offset(10,0),
+      ),
+    BoxShadow(
+      color:Colors.cyan,
+      offset: Offset(7,0),
+    ),
+      BoxShadow(
+        color:Colors.white,
+        offset: Offset(3,0),
+
+
+      ),]
+
 
 
   );
 }
+
+
+
+
+
+
+
+  Widget _buildRowAlbum(var playlistName, var index){
+
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Container(width: 30,),
+          Column(
+            children: <Widget>[
+              InkWell(
+                onTap: (){
+                  Navigator.of(context).pushNamed('song_list');
+                },
+                child: Container(
+
+                  width: 175,
+                  height: 175,
+                  decoration: _albumDecoration(),
+                  child: Image.asset('images/appleMusic.png'),
+
+                ),
+              ),
+              Text(playlistName),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  BoxDecoration _albumDecoration(){
+    return BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          left: BorderSide(
+            width: 2.0,
+            color: Colors.cyan,
+          ),
+
+          right: BorderSide(
+            width: 8,
+            color: Colors.cyan,
+          ),
+          top: BorderSide(
+            width: 8,
+            color: Colors.cyan,
+          ),
+          bottom: BorderSide(
+            width: 2.0,
+            color: Colors.cyan,
+
+          ),
+
+        ),
+    );
+  }
 
 
   Widget _buildSongBar(){

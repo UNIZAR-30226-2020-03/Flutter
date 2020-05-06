@@ -220,6 +220,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: const Text('Modificar contraseña', style: TextStyle(fontSize: 15)),
                       ),
                     ),
+                    IconButton(
+                      icon: Icon(Icons.file_upload),
+                      onPressed: (){
+                        Navigator.of(context).pushNamed('upload_song',arguments: jsonData);
+                        }
+                    ),
                   ]
                 )
               )

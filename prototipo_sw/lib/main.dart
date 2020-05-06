@@ -3,6 +3,9 @@ import 'package:prototipo_sw/Profile.dart';
 import 'package:prototipo_sw/first_screen.dart';
 import 'package:prototipo_sw/login.dart';
 import 'package:prototipo_sw/songScreen.dart';
+import 'package:prototipo_sw/change_pass.dart';
+import 'package:prototipo_sw/uploadSong.dart';
+import 'package:prototipo_sw/SongListScreen.dart';
 import 'home.dart';
 import 'pantallas.dart';
 import 'register.dart';
@@ -33,6 +36,9 @@ class MyApp extends StatelessWidget {
         'register': (context) => Register(),
         'home': (context) => Home(),
         'song': (context) => SongScreen(),
+        'change_pass': (context) => ChangePass(),
+        'upload_song': (context) => uploadSong(),
+        'song_list' : (context) => SongList(),
       }
     );
   }
