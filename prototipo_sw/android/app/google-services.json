@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "483089646900",
+    "firebase_url": "https://songstorage-538a9.firebaseio.com",
+    "project_id": "songstorage-538a9",
+    "storage_bucket": "songstorage-538a9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:483089646900:android:b8327bafd610fd5729d161",
+        "android_client_info": {
+          "package_name": "com.sw.prototipo_sw"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "483089646900-9pt8i8ds9iukkfvahl82cte4et8okoao.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmnuKgzbGZTpRby1pilqCLVaBnpXHKCSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "483089646900-9pt8i8ds9iukkfvahl82cte4et8okoao.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

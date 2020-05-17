@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:prototipo_sw/Profile.dart';
+
 import 'package:prototipo_sw/Profile_only_read.dart';
 import 'package:prototipo_sw/change_pass.dart';
 import 'package:prototipo_sw/first_screen.dart';
 import 'package:prototipo_sw/login.dart';
 import 'package:prototipo_sw/songScreen.dart';
+
+import 'package:prototipo_sw/uploadSong.dart';
+import 'package:prototipo_sw/SongListScreen.dart';
 import 'home.dart';
 
 import 'register.dart';
@@ -37,6 +40,8 @@ class MyApp extends StatelessWidget {
         'song': (context) => SongScreen(),
         'change_pass': (context) => ChangePass(),
         'profileOnlyR': (context) => ProfileOnlyRScreen(),
+        'upload_song': (context) => uploadSong(),
+        'song_list' : (context) => SongList(),
       }
     );
   }
