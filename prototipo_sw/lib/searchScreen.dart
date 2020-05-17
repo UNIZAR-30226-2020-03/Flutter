@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:prototipo_sw/model/song.dart';
+import 'package:prototipo_sw/model/usuario.dart';
 
-import 'Profile_only_read.dart';
 
 
 class SearchList extends StatefulWidget {
@@ -21,11 +22,79 @@ class _SearchListState extends State<SearchList>
   Icon actionIcon = new Icon(Icons.search, color: Colors.white,);
   final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = new TextEditingController();
-  List<String> _list;
   bool _IsSearching;
   String _searchText = "";
-
+  List _list;
+  String selected = "USER";
+  int _radioValue1 = 0;
   var jsonData;
+
+  Future _future;
+
+  void _handleRadioValueChange1(int value) {
+    setState(() {
+      _radioValue1 = value;
+      switch (_radioValue1) {
+        case 0:
+          _future = getAllUsers();
+          selected = "USER";
+          break;
+        case 1:
+          _future = getAllSongs();
+          selected = "CANCION";
+          break;
+        case 2:
+          selected = "PLAYLIST";
+          break;
+      } 
+      Navigator.pop(context);
+    });
+  }
+
+  createMenu(BuildContext context){ 
+    return showDialog(context: context, builder: (context){
+      return AlertDialog(
+        title: Text("¿Qué estás buscando?"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Radio(
+                value: 0,
+                groupValue: _radioValue1,
+                onChanged: _handleRadioValueChange1,
+              ),
+              new Text(
+                'Clientes',
+                style: new TextStyle(fontSize: 16.0),
+              ),
+              new Radio(
+                value: 1,
+                groupValue: _radioValue1,
+                onChanged: _handleRadioValueChange1,
+              ),
+              new Text(
+                'Canciones',
+                style: new TextStyle(
+                  fontSize: 16.0,
+                ),
+              ),
+              new Radio(
+                value: 2,
+                groupValue: _radioValue1,
+                onChanged: _handleRadioValueChange1,
+              ),
+              new Text(
+                'Playlists',
+                style: new TextStyle(fontSize: 16.0),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
 
   _SearchListState() {
     _searchQuery.addListener(() {
@@ -44,7 +113,30 @@ class _SearchListState extends State<SearchList>
     });
   }
 
-  Future<String> getAllUsers() async{
+  Future<List<Song>> getAllSongs() async{
+    List<Song> _list;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/allSongs');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+    // then parse the JSON
+    print('All songs done');
+      setState(() {
+        jsonData = json.decode(response.body);
+        _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
+      });
+    } 
+    return _list;
+  }
+
+  Future<List<Usuario>> getAllUsers() async{
+    List<Usuario> _list;
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/allClientes');
     final response = await http.get(
       uri,
@@ -59,59 +151,62 @@ class _SearchListState extends State<SearchList>
     print('All users done');
       setState(() {
         jsonData = json.decode(response.body);
+        _list = (jsonData as List).map((p) => Usuario.fromJson(p)).toList();
       });
     } 
-    return ('Success');
+    return _list;
   }
+
 
   @override
   void initState() {
     super.initState();
     _IsSearching = false;
-    getAllUsers();
-
   }
 
   @override
   Widget build(BuildContext context) {
-    _list = List();
-    if (jsonData != null){
-      for (int i = 0; i < jsonData.length; i++) {
-        print(jsonData[i]['correo']);
-        _list.add(jsonData[i]['username']);
-      }
+    if (selected == "USER"){
+       _future= getAllUsers();
     }
-    return new Scaffold(
-      key: key,
-      appBar: buildBar(context),
-      body: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children: _IsSearching ? _buildSearchList() :  _buildList(),
-      ),
+    return FutureBuilder<dynamic>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+        else _list = snapshot.data;
+        return new Scaffold(
+          key: key,
+          appBar: buildBar(context),
+          body: new ListView(
+            padding: new EdgeInsets.symmetric(vertical: 8.0),
+            children: _IsSearching ? _buildSearchList() :  _buildList(),
+          ),
+        );
+      }
     );
   }
 
-  List<ChildItem> _buildList() {
-    //AQUI SE AÑADIRAN LAS CANCIONES MÁS STREMEADAS Y RECOMENDACIONES
-    return List<ChildItem>();
+  List _buildList() {
+    List ret;
+    if (selected == "USER"){
+      ret =  _buildUserList();
+    }
+    else if (selected == "CANCION"){
+      ret = _buildSongList();
+
+    }
+    return ret;
   }
 
-  List<ChildItem> _buildSearchList() {
-    if (_searchText.isEmpty) {
-      return _list.map((contact) => new ChildItem(contact, widget._email))
-          .toList();
+  List _buildSearchList() {
+    List ret;
+    if (selected == "USER"){
+      ret =  _buildUserSearchList();
     }
-    else {
-      List<String> _searchList = List();
-      for (int i = 0; i < _list.length; i++) {
-        String  name = _list.elementAt(i);
-        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          _searchList.add(name);
-        }
-      }
-      return _searchList.map((contact) => new ChildItem(contact, widget._email))
-          .toList();
+    else if (selected == "CANCION"){ //CANCIONES, PLAYLISTS, ALBUMS...
+      ret = _buildSongSearchList();
     }
+    return ret;
   }
 
   Widget buildBar(BuildContext context) {
@@ -138,7 +233,9 @@ class _SearchListState extends State<SearchList>
                 ),
               );
               this._leading = new IconButton(icon: Icon(Icons.menu),  
-              // onPressed: OPEN MENU TO SELECT A TABLE TO SEARCH IN (USERS, ALBUMS, CANCIONES),
+              onPressed: () {
+                  createMenu(context);
+               }
              );
               _handleSearchStart();
             }
@@ -167,72 +264,103 @@ class _SearchListState extends State<SearchList>
       _searchQuery.clear();
     });
   }
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/* BÚSQUEDA DE USUARIOS */
+
+  List<UsuarioItem> _buildUserList() {
+    //AQUI SE AÑADIRAN LAS CANCIONES MÁS STREMEADAS Y RECOMENDACIONES
+    return List<UsuarioItem>();
+  }
+
+  List<UsuarioItem> _buildUserSearchList() {
+    if (_searchText.isEmpty) {
+      return _list.map((contact) => new UsuarioItem(contact, widget._email))
+          .toList();
+    }
+    else {
+      List<Usuario> _searchList = List();
+      for (int i = 0; i < _list.length; i++) {
+        String  name = _list.elementAt(i).username;
+        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
+          _searchList.add(_list.elementAt(i));
+        }
+      }
+      return _searchList.map((contact) => new UsuarioItem(contact, widget._email))
+          .toList();
+    }
+  }
+
+
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/* BÚSQUEDA DE CANCIONES */
+
+  List<SongItem> _buildSongList() {
+    //AQUI SE AÑADIRAN LAS CANCIONES MÁS STREMEADAS Y RECOMENDACIONES
+    return List<SongItem>();
+  }
+
+  List<SongItem> _buildSongSearchList() {
+    if (_searchText.isEmpty) {
+      return _list.map((contact) => new SongItem(contact, widget._email))
+          .toList();
+    }
+    else {
+      List<Song> _searchList = List();
+      for (int i = 0; i < _list.length; i++) {
+        String  name = _list.elementAt(i).nombre;
+        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
+          _searchList.add(_list.elementAt(i));
+        }
+      }
+      return _searchList.map((contact) => new SongItem(contact, widget._email))
+          .toList();
+    }
+  }
 
 }
 
-class ChildItem extends StatefulWidget {
-  final String user;
+/*---------------------------------------------------------------------------------------*/
+/*USUARIO ITEMS */
+class UsuarioItem extends StatefulWidget {
+  final Usuario user;
   final String me;
-  ChildItem( this.user, this.me,);
+  UsuarioItem( this.user, this.me,);
 
   @override
-  _ChildItemState createState() => _ChildItemState();
+  UsuarioItemState createState() => UsuarioItemState();
 }
 
-class _ChildItemState extends State<ChildItem> {
+class UsuarioItemState extends State<UsuarioItem> {
   Icon follow = new Icon(Icons.person_add);
-  String correo;
 
   following(String me, String friend) async {
-    var userFriend;
-    var uri = Uri.https('upbeatproyect.herokuapp.com','/usuario/username/$friend');
-    final response = await http.get(
-      uri,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/following/$me/$friend');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
     );
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON
-      userFriend = json.decode(response.body);
-      correo = userFriend['correo'];
-      var uri2 = Uri.https('upbeatproyect.herokuapp.com','/usuario/following/$me/$correo');
-      final response2 = await http.get(
-        uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
-      );
-      print (response2.statusCode);
-      if (response2.statusCode == 200) {
-        var ret = json.decode(response2.body);
-        if (correo == me) {
-          setState(() {
-            follow = Icon(null);
-          });
-        }
-        else if(ret == 0){
-          setState(() {
-            follow = Icon(Icons.check);
-          });
-        }
+    print (response2.statusCode);
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if (friend == me) {
+        setState(() {
+          follow = Icon(null);
+        });
+      }
+      else if(ret == 0){
+        setState(() {
+          follow = Icon(Icons.check);
+        });
       }
     }
   }
 
   unfollowUser(String me, String friend) async {
-  var userFriend;
-  var uri = Uri.https('upbeatproyect.herokuapp.com','/usuario/username/$friend');
-  final response = await http.get(
-    uri,
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON
-    userFriend = json.decode(response.body);
-    correo = userFriend['correo'];
-    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/usuario/unfollow/$me/$correo');
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/unfollow/$me/$friend');
     final response2 = await http.put(
       uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
     );
@@ -242,24 +370,11 @@ class _ChildItemState extends State<ChildItem> {
         print("Usuario unfollowed con éxito");
       });
     }
-  }
-}
+  } 
 
-followUser(String me, String friend) async {
-  var userFriend;
-  var uri = Uri.https('upbeatproyect.herokuapp.com','/usuario/username/$friend');
-  final response = await http.get(
-    uri,
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON
-    userFriend = json.decode(response.body);
-    correo = userFriend['correo'];
-    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/usuario/follow/$me/$correo');
+  followUser(String me, String friend) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/follow/$me/$friend');
     final response2 = await http.put(
       uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
     );
@@ -270,28 +385,86 @@ followUser(String me, String friend) async {
       });
     }
   }
-}
 
 
   @override
   void initState() { 
     super.initState();
-    following(widget.me, widget.user);
+    following(widget.me, widget.user.email);
   }
 
   @override
   Widget build(BuildContext context) {
     return new ListTile(
-      title: new Text(widget.user), 
+      leading:
+        Column(
+          children: <Widget>[
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                image: DecorationImage(
+                  image: NetworkImage('https://www.pngitem.com/pimgs/m/78-786501_black-avatar-png-user-icon-png-transparent-png.png'),
+                  fit: BoxFit.fill
+                ),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(75.0)
+                ),
+                boxShadow: [
+                  BoxShadow(blurRadius: 13.0, color: Colors.black)
+                ]
+              ),
+            ),
+          ],
+        ),
+      title: new Text(widget.user.username), 
       trailing: IconButton(
         icon: follow,
         onPressed: () {
-          if(follow.icon == Icons.person_add) followUser(widget.me , widget.user);
-          else if (follow.icon == Icons.check) unfollowUser(widget.me , widget.user);
+          if(follow.icon == Icons.person_add) followUser(widget.me , widget.user.email);
+          else if (follow.icon == Icons.check) unfollowUser(widget.me , widget.user.email);
         } 
       ),
-      onTap: () => Navigator.of(context).pushNamed('profileOnlyR', arguments: correo)
+      onTap: () => Navigator.of(context).pushNamed('profileOnlyR', arguments: widget.user.email)
     );
   }
 }
 
+
+class SongItem extends StatefulWidget {
+  final Song song;
+  final String me;
+  SongItem( this.song, this.me);
+
+  @override
+  SongItemState createState() => SongItemState();
+}
+
+class SongItemState extends State<SongItem> {
+
+  Icon fav = new Icon(Icons.favorite_border);
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListTile(
+      title: new Text(widget.song.nombre), 
+      trailing: IconButton(
+        icon: fav,
+        onPressed: () {
+          setState(() {
+            if (fav == Icon(Icons.favorite_border)){
+              fav = Icon(Icons.favorite);
+            }
+            else if(fav == Icon(Icons.favorite)) {
+              fav = Icon(Icons.favorite_border);
+            }
+          });
+        }
+      ),
+      subtitle: new Text(widget.song.autor),
+      //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+      //onLongPress:// Desplegar Menu: Añadir a cola de reproduccion en la última posicion, Añadir a playlist, Ver Álbum
+    );
+  }
+}

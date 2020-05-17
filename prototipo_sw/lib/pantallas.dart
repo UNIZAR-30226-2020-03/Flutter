@@ -190,7 +190,6 @@ class SongsState extends State<Songs>{
                   //color: Colors.cyan,
                     fontSize: 34.0,
                     fontWeight: FontWeight.w600
-
                 ),
               )
             ],
@@ -508,7 +507,6 @@ Widget _buildRowPlaylist(var playlistName, var index){
                 height: 175,
                 decoration: _playlistDecoration(),
                 child: Image.asset('images/appleMusic.png'),
-
               ),
               Text(playlistName),
             ],
@@ -586,8 +584,6 @@ BoxDecoration _playlistDecoration(){
                   child: Container(
                     child: Text(_songsName[currentSong],
                       overflow: TextOverflow.clip,),
-
-
                   ),
                 ),
                 IconButton(
@@ -624,18 +620,4 @@ BoxDecoration _playlistDecoration(){
 
 }
 
-
-
-class FavScreen extends StatelessWidget{
-  var string = 'Favorite';
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      body: Center(
-          child: Text(string)
-      ),
-    );
-  }
-}
 

@@ -17,7 +17,7 @@ class _FavScreenState extends State<FavScreen> {
 
   Future<List<Usuario>> getFollowingList(String _email) async{
     List<Usuario> _list;
-    var uri = Uri.https('upbeatproyect.herokuapp.com','/usuario/followingList/$_email');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/followingList/$_email');
     final response = await http.get(
       uri,
       headers: <String, String>{
