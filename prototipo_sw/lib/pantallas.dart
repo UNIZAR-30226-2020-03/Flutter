@@ -5,7 +5,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'sizeConfig.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:audiofileplayer/audiofileplayer.dart';
@@ -144,7 +144,7 @@ class SongsState extends State<Songs>{
     super.initState();
     _future = streamSong();
     print('1');
-    _loadAudioByteData();
+    //_loadAudioByteData();
     print('2');
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
