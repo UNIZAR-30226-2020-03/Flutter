@@ -222,8 +222,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                        FloatingActionButton(
-                      child: Icon(Icons.file_upload),
-                      onPressed: (){
+                        child: Icon(Icons.file_upload),
+                        onPressed: (){
                           Navigator.of(context).pushNamed('upload_song',arguments: jsonData);
                         }
                       ),

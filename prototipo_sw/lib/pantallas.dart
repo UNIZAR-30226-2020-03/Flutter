@@ -4,27 +4,31 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
+import 'package:prototipo_sw/crear_playlist.dart';
+import 'package:prototipo_sw/model/playlist.dart';
 import 'sizeConfig.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:audiofileplayer/audiofileplayer.dart';
-import 'dart:io' as io;
 
 class HomeScreen extends StatelessWidget{
+  final String user;
+  HomeScreen(this.user);
 
   @override
   Widget build(BuildContext context) {
-
-    return Songs();
-
+    return Songs(user);
   }
 }
 
 class Songs extends StatefulWidget{
+
+  final String user;
+  Songs(this.user);
+
   @override
   State<StatefulWidget> createState() {
-    print('songs');
     return SongsState();
   }
 }
@@ -38,7 +42,7 @@ class SongsState extends State<Songs>{
   final _songs = ['twice-tt-mv.mp3','twice-fancy-mv.mp3','','','twice-tt-mv.mp3','twice-fancy-mv.mp3','','','twice-tt-mv.mp3','twice-fancy-mv.mp3','',''];
   final _saved = Set();
 
-  final _playlists = ['Playlist 1', 'Playlist 2', 'Playlist 3', 'Playlist 4', 'Playlist 5'];
+  List<Playlist> _playlists;
   bool listFixPlaylist = true;
 
   bool reproduciendo = false;
@@ -60,6 +64,7 @@ class SongsState extends State<Songs>{
   var _nombre2;
   var cancion;
   Future _future;
+  Future _futurePl;
   ByteData _audioByteData;
   ByteData data;
 
@@ -107,7 +112,6 @@ class SongsState extends State<Songs>{
       // If the server did return a 200 OK response,
       // then parse the JSON
       setState(() {
-
         print(response.body);
         jsonData = json.decode(response.body);
         print(jsonData[0]);
@@ -142,10 +146,8 @@ class SongsState extends State<Songs>{
   @override
   void initState(){
     super.initState();
+    _futurePl = getUserPlaylists(widget.user);
     _future = streamSong();
-    print('1');
-    //_loadAudioByteData();
-    print('2');
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
   }
@@ -187,7 +189,6 @@ class SongsState extends State<Songs>{
           FutureBuilder(
             future: _future,
             builder: (context, snapshot){
-
               return IconButton(
                 icon: Icon(Icons.play_circle_outline),
                 onPressed: (){
@@ -262,6 +263,7 @@ class SongsState extends State<Songs>{
   }
 
   Widget _buildSongs(){
+    
     return Container(
       color: Colors.white,
       child: Column(
@@ -276,72 +278,76 @@ class SongsState extends State<Songs>{
   }
 
   Widget _buildPlayLists(){
-    return Container(
-      color: Colors.white,
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: 10,
-          ),
-          _buildFullTopMenu(),
-          Container(
-            height: 15,
-          ),
-          Row(
+    return FutureBuilder<Object>(
+      future: _futurePl,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+        else _playlists = snapshot.data;
+        return Container(
+          color: Colors.white,
+          child: Column(
             children: <Widget>[
-              Text('     Playlists',
-                style: TextStyle(
-                  //color: Colors.cyan,
-                    fontSize: 34.0,
-                    fontWeight: FontWeight.w600
-                ),
-              )
-            ],
-          ),
-          Container(
-            height: 10,
-          ),
-          Container(
-
-            height: 770,
-            child: Stack(
-              children: <Widget>[
-                Container(
-
-                  height: 730,
-                  child:
-
-
-
-                      ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _playlists.length,
-                          itemBuilder: (context, i) {
-                            print(i);
-
-
-                            return _buildRowPlaylist(_playlists[i], i);
-                          }
-
-                      ),
-
+              Container(
+                height: 10,
+              ),
+              _buildFullTopMenu(),
+              Container(
+                height: 15,
+              ),
+              Row(
+                children: <Widget>[
+                  Text('     Playlists',
+                    style: TextStyle(
+                      //color: Colors.cyan,
+                        fontSize: 34.0,
+                        fontWeight: FontWeight.w600
+                    ),
                   ),
-
-
-
-
-
-
-
-                _buildSongBar(),
-              ],
-            ),
+                ],
+              ),
+              Container(height: 20,),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(35.0, 0.0, 8.0, 8.0),
+                    child: Container(
+                      child: FloatingActionButton(
+                        onPressed: () async{
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => CrearPlaylist(widget.user))).then((value) {
+                            setState(() {
+                              _futurePl = getUserPlaylists(widget.user);
+                            });
+                          });
+                        },
+                        child: Icon(
+                          Icons.add, color: Colors.white
+                        )
+                      ),
+                    ), 
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 150.0,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _playlists.length,
+                        itemBuilder: (context, i) {
+                          return _buildRowPlaylist(_playlists[i].nombre, i);
+                        }
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            Container(height: 220,),
+            _buildSongBar(),
+            ]
           ),
-        ],
-      ),
+        );
+      }
     );
   }
-
+    
   Widget _buildAlbums(){
     return Container(
       color: Colors.white,
@@ -370,24 +376,17 @@ class SongsState extends State<Songs>{
             height: 10,
           ),
           Container(
-
             height: 770,
             child: Stack(
               children: <Widget>[
                 Container(
-
                   height: 730,
                   child:
-
-
-
                   ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: _playlists.length,
                       itemBuilder: (context, i) {
                         print(i);
-
-
                         return _buildRowAlbum(_playlists[i], i);
                       }
 
@@ -405,407 +404,416 @@ class SongsState extends State<Songs>{
       ),
     );
   }
-
-  Widget _buildPodcasts(){
-    return Container(
-      color: Colors.white,
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: 10,
-          ),
-          _buildFullTopMenu(),
-          Container(
-            height: 15,
-          ),
-          Row(
-            children: <Widget>[
-              Text('     Podcasts',
-                style: TextStyle(
-                  //color: Colors.cyan,
-                    fontSize: 34.0,
-                    fontWeight: FontWeight.w600
-
-                ),
-              )
-            ],
-          ),
-          Container(
-            height: 10,
-          ),
-          Container(
-
-            height: 770,
-            child: Stack(
-              children: <Widget>[
-                Container(
-
-                  height: 730,
-                  child:
-
-
-
-                  ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _playlists.length,
-                      itemBuilder: (context, i) {
-                        print(i);
-
-
-                        return _buildRowPlaylist(_playlists[i], i);
-                      }
-
-                  ),
-
-                ),
-
-
-
-                _buildSongBar(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-Widget _buildFullTopMenu(){
-
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-
-        SizedBox(
-          width: 74,
-          child: _buildTopMenu(0),
-        ),
-
-        SizedBox(
-          width: 88,
-          child: _buildTopMenu(1),
-        ),
-
-        Container(
-          width: 83,
-          child: _buildTopMenu(2),
-        ),
-
-        Container(
-          width: 94,
-          child: _buildTopMenu(3),
-        ),
-
-
-
-
-      ],
-    );
-}
-
- Widget _buildTopMenu(var screen){
-    return ButtonTheme(
-      minWidth: 40,
-        child: FlatButton(
-
+    
+      Widget _buildPodcasts(){
+        return Container(
           color: Colors.white,
-          disabledColor: Colors.white,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onPressed: (){
-            setState(() {
-              if (screen == _currentScreenHome){
-
-              } else{
-                _currentScreenHome = screen;
-                for(int i = 0; i<4; i++){
-                  _currentScreenHomeBool[i]=false;
-                }
-                _currentScreenHomeBool[screen]=true;
-              }
-            });
-
-          },
-          child: Text(
-            _ScreensHome[screen],
-            style: TextStyle(
-              color: _currentScreenHomeBool[screen] ? Colors.cyan : Colors.black,
-            ),
-          ),
-        )
-    )
-      ;
-}
-
-
-  Widget _buildRow(var songName, var group, var song, var index){
-    final savedSongs = _saved.contains(songName);
-    return ListTile(
-      title: Text(songName),
-      subtitle: Text(group),
-      leading: Container(
-        width: 85,
-        child: Row(
-
-        children: <Widget>[
-
-
-            Container(
-                height: 50,
-                width: 50,
-                decoration: _myBoxDecoration(),
-                child: Image.asset('images/appleMusic.png')),
-            SizedBox(width: 10,),
-            Icon(Icons.play_arrow),
-         ],
-          ),
-      ),
-      onTap: (){
-        audioCache.play(song);
-        currentSong = index;
-        setState(() {
-          reproduciendo = true;
-        });
-      },
-      trailing: IconButton(
-        icon : Icon(savedSongs ? Icons.favorite : Icons.favorite_border),
-        color : savedSongs ? Colors.cyan : null,
-        onPressed: (){
-          setState((){
-            if(savedSongs){
-              _saved.remove(songName);
-            }else{
-              _saved.add(songName);
-            }
-          });
-        },
-      ),
-
-    ) ;
-  }
-
-  //final<List> FavSongsList{
-
- // }
-
-  BoxDecoration _myBoxDecoration(){
-    return BoxDecoration(
-      border: Border.all(
-          color: Colors.cyan,
-          width: 1.5,),
-      borderRadius: BorderRadius.all(Radius.circular(5))
-    );
-  }
-
-Widget _buildRowPlaylist(var playlistName, var index){
-
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Container(width: 30,),
-          Column(
+          child: Column(
             children: <Widget>[
               Container(
-
-                width: 175,
-                height: 175,
-                decoration: _playlistDecoration(),
-                child: Image.asset('images/appleMusic.png'),
+                height: 10,
               ),
-              Text(playlistName),
-            ],
-          ),
-        ],
-      ),
-    );
-}
-
-BoxDecoration _playlistDecoration(){
-  return BoxDecoration(
-    color: Colors.white,
-    border: Border(
-      left: BorderSide(
-        width: 2.0,
-        color: Colors.cyan,
-      ),
-
-      right: BorderSide(
-        width: 6.5,
-        color: Colors.cyan,
-      ),
-      top: BorderSide(
-        width: 6.5,
-        color: Colors.cyan,
-      ),
-      bottom: BorderSide(
-        width: 2.0,
-        color: Colors.cyan,
-
-      ),
-      
-    ),
-    boxShadow: [
-      BoxShadow(
-        color:Colors.cyan,
-        offset: Offset(14,0),
-      ),
-      BoxShadow(
-        color:Colors.white,
-        offset: Offset(10,0),
-      ),
-    BoxShadow(
-      color:Colors.cyan,
-      offset: Offset(7,0),
-    ),
-      BoxShadow(
-        color:Colors.white,
-        offset: Offset(3,0),
-
-
-      ),]
-
-
-
-  );
-}
-
-
-
-
-
-
-
-  Widget _buildRowAlbum(var playlistName, var index){
-
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Container(width: 30,),
-          Column(
-            children: <Widget>[
-              InkWell(
-                onTap: (){
-                  Navigator.of(context).pushNamed('song_list');
-                },
-                child: Container(
-
-                  width: 175,
-                  height: 175,
-                  decoration: _albumDecoration(),
-                  child: Image.asset('images/appleMusic.png'),
-
+              _buildFullTopMenu(),
+              Container(
+                height: 15,
+              ),
+              Row(
+                children: <Widget>[
+                  Text('     Podcasts',
+                    style: TextStyle(
+                      //color: Colors.cyan,
+                        fontSize: 34.0,
+                        fontWeight: FontWeight.w600
+    
+                    ),
+                  )
+                ],
+              ),
+              Container(
+                height: 10,
+              ),
+              Container(
+    
+                height: 770,
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+    
+                      height: 730,
+                      child:
+    
+    
+    
+                      ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _playlists.length,
+                          itemBuilder: (context, i) {
+                            print(i);
+                            return _buildRowPlaylist(_playlists[i].nombre, i);
+                          }
+    
+                      ),
+    
+                    ),
+    
+    
+    
+                    _buildSongBar(),
+                  ],
                 ),
               ),
-              Text(playlistName),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration _albumDecoration(){
-    return BoxDecoration(
+        );
+      }
+    
+    Widget _buildFullTopMenu(){
+    
+    
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+    
+            SizedBox(
+              width: 74,
+              child: _buildTopMenu(0),
+            ),
+    
+            SizedBox(
+              width: 88,
+              child: _buildTopMenu(1),
+            ),
+    
+            Container(
+              width: 83,
+              child: _buildTopMenu(2),
+            ),
+    
+            Container(
+              width: 94,
+              child: _buildTopMenu(3),
+            ),
+    
+    
+    
+    
+          ],
+        );
+    }
+    
+     Widget _buildTopMenu(var screen){
+        return ButtonTheme(
+          minWidth: 40,
+            child: FlatButton(
+    
+              color: Colors.white,
+              disabledColor: Colors.white,
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onPressed: (){
+                setState(() {
+                  if (screen == _currentScreenHome){
+    
+                  } else{
+                    _currentScreenHome = screen;
+                    for(int i = 0; i<4; i++){
+                      _currentScreenHomeBool[i]=false;
+                    }
+                    _currentScreenHomeBool[screen]=true;
+                  }
+                });
+    
+              },
+              child: Text(
+                _ScreensHome[screen],
+                style: TextStyle(
+                  color: _currentScreenHomeBool[screen] ? Colors.cyan : Colors.black,
+                ),
+              ),
+            )
+        )
+          ;
+    }
+    
+    
+      Widget _buildRow(var songName, var group, var song, var index){
+        final savedSongs = _saved.contains(songName);
+        return ListTile(
+          title: Text(songName),
+          subtitle: Text(group),
+          leading: Container(
+            width: 85,
+            child: Row(
+    
+            children: <Widget>[
+    
+                Container(
+                    height: 50,
+                    width: 50,
+                    decoration: _myBoxDecoration(),
+                    child: Image.asset('images/appleMusic.png')),
+                SizedBox(width: 10,),
+                Icon(Icons.play_arrow),
+             ],
+              ),
+          ),
+          onTap: (){
+            audioCache.play(song);
+            currentSong = index;
+            setState(() {
+              reproduciendo = true;
+            });
+          },
+          trailing: IconButton(
+            icon : Icon(savedSongs ? Icons.favorite : Icons.favorite_border),
+            color : savedSongs ? Colors.cyan : null,
+            onPressed: (){
+              setState((){
+                if(savedSongs){
+                  _saved.remove(songName);
+                }else{
+                  _saved.add(songName);
+                }
+              });
+            },
+          ),
+    
+        ) ;
+      }
+    
+      //final<List> FavSongsList{
+    
+     // }
+    
+      BoxDecoration _myBoxDecoration(){
+        return BoxDecoration(
+          border: Border.all(
+              color: Colors.cyan,
+              width: 1.5,),
+          borderRadius: BorderRadius.all(Radius.circular(5))
+        );
+      }
+    
+    Widget _buildRowPlaylist(var playlistName, var index){
+      return Container(
+        child: Row(
+          children: <Widget>[
+            Container(width: 30,),
+            Column(
+              children: <Widget>[
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: _playlistDecoration(),
+                  child: Image.asset('images/appleMusic.png'),
+                ),
+                Container(height: 10,),
+                Text(playlistName),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+    
+    BoxDecoration _playlistDecoration(){
+      return BoxDecoration(
         color: Colors.white,
         border: Border(
           left: BorderSide(
             width: 2.0,
             color: Colors.cyan,
           ),
-
+    
           right: BorderSide(
-            width: 8,
+            width: 6.5,
             color: Colors.cyan,
           ),
           top: BorderSide(
-            width: 8,
+            width: 6.5,
             color: Colors.cyan,
           ),
           bottom: BorderSide(
             width: 2.0,
             color: Colors.cyan,
-
+    
           ),
-
+          
         ),
-    );
-  }
-
-
-  Widget _buildSongBar(){
-
-
-    return Positioned.fill(
-
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: InkWell(
-          onTap: (){
-            Navigator.of(context).pushNamed('song', arguments: reproduciendo);
-          },
-          child: Container(
-
-            height: 30,
-            child: Row (
-
-
-
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
-                  onPressed: (){
-                    if (reproduciendo){
-                      audioPlayer.stop();
-                    }else {
-                      audioCache.play(_songs[currentSong]);
-                    }
-
-                    setState(() {
-                      reproduciendo = !reproduciendo;
-                    });
-
-                  },
-                ),
-                Expanded(
-                  child: Container(
-                    child: Text(_songsName[currentSong],
-                      overflow: TextOverflow.clip,),
+        boxShadow: [
+          BoxShadow(
+            color:Colors.cyan,
+            offset: Offset(14,0),
+          ),
+          BoxShadow(
+            color:Colors.white,
+            offset: Offset(10,0),
+          ),
+        BoxShadow(
+          color:Colors.cyan,
+          offset: Offset(7,0),
+        ),
+          BoxShadow(
+            color:Colors.white,
+            offset: Offset(3,0),
+    
+    
+          ),]
+    
+    
+    
+      );
+    }
+    
+    
+    
+    
+    
+    
+    
+      Widget _buildRowAlbum(var playlistName, var index){
+    
+        return Container(
+          child: Row(
+            children: <Widget>[
+              Container(width: 30,),
+              Column(
+                children: <Widget>[
+                  InkWell(
+                    onTap: (){
+                      Navigator.of(context).pushNamed('song_list');
+                    },
+                    child: Container(
+    
+                      width: 175,
+                      height: 175,
+                      decoration: _albumDecoration(),
+                      child: Image.asset('images/appleMusic.png'),
+    
+                    ),
                   ),
+                  Text(playlistName),
+                ],
+              ),
+            ],
+          ),
+        );
+      }
+    
+      BoxDecoration _albumDecoration(){
+        return BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              left: BorderSide(
+                width: 2.0,
+                color: Colors.cyan,
+              ),
+    
+              right: BorderSide(
+                width: 8,
+                color: Colors.cyan,
+              ),
+              top: BorderSide(
+                width: 8,
+                color: Colors.cyan,
+              ),
+              bottom: BorderSide(
+                width: 2.0,
+                color: Colors.cyan,
+    
+              ),
+    
+            ),
+        );
+      }
+    
+    
+      Widget _buildSongBar(){
+    
+    
+        return Positioned.fill(
+    
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: InkWell(
+              onTap: (){
+                Navigator.of(context).pushNamed('song', arguments: reproduciendo);
+              },
+              child: Container(
+    
+                height: 30,
+                child: Row (
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
+                      onPressed: (){
+                        if (reproduciendo){
+                          audioPlayer.stop();
+                        }else {
+                          audioCache.play(_songs[currentSong]);
+                        }
+    
+                        setState(() {
+                          reproduciendo = !reproduciendo;
+                        });
+    
+                      },
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: Text(_songsName[currentSong],
+                          overflow: TextOverflow.clip,),
+                      ),
+                    ),
+                    IconButton(
+                      icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
+                      onPressed: (){
+                        setState((){
+                          if(volume > 0.0){
+                            volumeP = volume;
+                            volume = 0.0;
+                          }else{
+                            volume = volumeP;
+                          }
+                        });
+                      },
+                    ),
+                    Slider(
+                      value: volume,
+                      max: 1.0,
+                      onChanged: (double vol){
+    
+                        setState(() {
+                          volume = vol;
+                          audioPlayer.setVolume(volume);
+                        });
+                      },
+                    )
+                  ],
                 ),
-                IconButton(
-                  icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
-                  onPressed: (){
-                    setState((){
-                      if(volume > 0.0){
-                        volumeP = volume;
-                        volume = 0.0;
-                      }else{
-                        volume = volumeP;
-                      }
-                    });
-                  },
-                ),
-                Slider(
-                  value: volume,
-                  max: 1.0,
-                  onChanged: (double vol){
-
-                    setState(() {
-                      volume = vol;
-                      audioPlayer.setVolume(volume);
-                    });
-                  },
-                )
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      }
+  Future<List<Playlist>> getUserPlaylists(String correo) async{
+    List<Playlist> _list;
+    print('getSongs');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/myPlaylists/$correo');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
     );
+    print('Playlist Response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      setState(() {
+        jsonData = json.decode(response.body);
+        _list = (jsonData as List).map((p) => Playlist.fromJson(p)).toList();
+      });
+    }
+    return _list;
   }
-
 }
-
-

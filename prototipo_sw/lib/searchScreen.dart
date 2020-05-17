@@ -148,14 +148,16 @@ class _SearchListState extends State<SearchList>
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
     // then parse the JSON
-    print('All users done');
-      setState(() {
-        jsonData = json.decode(response.body);
-        _list = (jsonData as List).map((p) => Usuario.fromJson(p)).toList();
-      });
-    } 
+      print('All users done');
+      if (this.mounted) {
+        setState(() {
+          jsonData = json.decode(response.body);
+          _list = (jsonData as List).map((p) => Usuario.fromJson(p)).toList();
+        });
+      }    
+    }
     return _list;
-  }
+  } 
 
 
   @override
@@ -462,9 +464,25 @@ class SongItemState extends State<SongItem> {
           });
         }
       ),
+      enabled: true,
       subtitle: new Text(widget.song.autor),
+      onLongPress: popUpMenu(context),
       //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
-      //onLongPress:// Desplegar Menu: Añadir a cola de reproduccion en la última posicion, Añadir a playlist, Ver Álbum
     );
+  }
+  popUpMenu(BuildContext context){
+    return showMenu(
+      context: context, 
+      position: null, 
+      items: <PopupMenuEntry>[
+        PopupMenuItem(     
+          child: Row(
+            children: <Widget>[
+              Icon(Icons.delete),
+              Text("Delete"),
+            ],
+          ),
+        )
+      ], );
   }
 }

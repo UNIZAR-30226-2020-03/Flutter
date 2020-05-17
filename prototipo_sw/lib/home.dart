@@ -54,7 +54,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       _password = arguments.pass; //acordarse de cambiar esto: _password = arguments.pass;
       _email = arguments.email; //_email = arguments.email;
       _children = [
-    HomeScreen(),
+    HomeScreen(_email),
     FavScreen(_email),
     SearchList(_email),
     ProfileScreen(_email, _password),
