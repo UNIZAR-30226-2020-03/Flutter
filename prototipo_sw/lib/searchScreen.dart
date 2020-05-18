@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:prototipo_sw/model/song.dart';
 import 'package:prototipo_sw/model/usuario.dart';
+import 'package:prototipo_sw/user_playlists.dart';
 
 
 
@@ -445,44 +446,73 @@ class SongItem extends StatefulWidget {
 
 class SongItemState extends State<SongItem> {
 
-  Icon fav = new Icon(Icons.favorite_border);
+  Icon fav = Icon(Icons.favorite_border) ;
 
+  @override
+  void initState() { 
+    super.initState();
+    
+  }
   @override
   Widget build(BuildContext context) {
     return new ListTile(
       title: new Text(widget.song.nombre), 
-      trailing: IconButton(
-        icon: fav,
-        onPressed: () {
-          setState(() {
-            if (fav == Icon(Icons.favorite_border)){
-              fav = Icon(Icons.favorite);
-            }
-            else if(fav == Icon(Icons.favorite)) {
-              fav = Icon(Icons.favorite_border);
-            }
-          });
-        }
-      ),
+      trailing: 
+        Wrap(
+          children: <Widget>[
+            IconButton(
+              icon: fav,
+              color: Colors.red,
+              onPressed: () {
+                print(fav);
+                if (fav.icon == (Icons.favorite_border)){
+                  setState(() {
+                    fav = Icon(Icons.favorite);
+                  });
+                }
+                else {
+                  setState(() {
+                    fav = Icon(Icons.favorite_border);
+                  });
+                }
+              }
+            ),
+            PopupMenuButton<String>(
+              onSelected: choiceAction,
+              itemBuilder: (BuildContext context){
+                return Options.choices.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                  
+                }).toList();
+              },
+            ),
+          ],
+        ),
       enabled: true,
       subtitle: new Text(widget.song.autor),
-      onLongPress: popUpMenu(context),
       //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
     );
   }
-  popUpMenu(BuildContext context){
-    return showMenu(
-      context: context, 
-      position: null, 
-      items: <PopupMenuEntry>[
-        PopupMenuItem(     
-          child: Row(
-            children: <Widget>[
-              Icon(Icons.delete),
-              Text("Delete"),
-            ],
-          ),
-        )
-      ], );
+
+  void choiceAction(String choice) {
+    if (choice == Options.p1){
+      int songId = widget.song.id;
+      print ("Añadir a Playlist");
+      Navigator.push(context, MaterialPageRoute(builder: (context) => UserPlaylists(widget.me,songId)));
+      // Push a la vista de playlists del usuario
+    }
   }
+
 }
+
+  class Options {
+    static const String p1 = "Añadir a Playlist";
+    static const String p2 = "Ver álbum";
+    static const String p3 = "Añadir a cola de reproducción";
+
+    static const List<String> choices = <String> [p1,p2,p3];
+
+  }

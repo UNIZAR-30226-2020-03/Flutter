@@ -6,6 +6,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:prototipo_sw/crear_playlist.dart';
 import 'package:prototipo_sw/model/playlist.dart';
+import 'package:prototipo_sw/model/song.dart';
 import 'sizeConfig.dart';
 
 import 'package:http/http.dart' as http;
@@ -43,6 +44,7 @@ class SongsState extends State<Songs>{
   final _saved = Set();
 
   List<Playlist> _playlists;
+  List<Song> _songlist;
   bool listFixPlaylist = true;
 
   bool reproduciendo = false;
@@ -65,8 +67,13 @@ class SongsState extends State<Songs>{
   var cancion;
   Future _future;
   Future _futurePl;
+  Future _futurels;
   ByteData _audioByteData;
   ByteData data;
+
+  Playlist playlist;
+  bool viewPlaylist;
+  String nomPlaylist = "";
 
 
   Future<void> streamSong() async{
@@ -150,6 +157,8 @@ class SongsState extends State<Songs>{
     _future = streamSong();
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
+    playlist = null;
+    viewPlaylist = false;
   }
 
   @override
@@ -159,18 +168,28 @@ class SongsState extends State<Songs>{
     SizeConfig().init(context);
 
     if (_currentScreenHomeBool[3]){
+       if (viewPlaylist) setState(() {
+        viewPlaylist = false;
+      });
       return Scaffold(
         body: _buildPodcasts(),
       );
     }else if (_currentScreenHomeBool[2]){
+       if (viewPlaylist) setState(() {
+        viewPlaylist = false;
+      });
       return Scaffold(
         body: _buildAlbums(),
       );
     }else if (_currentScreenHomeBool[1]){
+     
       return Scaffold(
         body: _buildPlayLists(),
     );
     }else{
+       if (viewPlaylist) setState(() {
+        viewPlaylist = false;
+      });
       return Scaffold(
         body: _buildAll(),
       );
@@ -313,7 +332,9 @@ class SongsState extends State<Songs>{
                     child: Container(
                       child: FloatingActionButton(
                         onPressed: () async{
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => CrearPlaylist(widget.user))).then((value) {
+                          Navigator.push(context, 
+                          MaterialPageRoute(
+                            builder: (context) => CrearPlaylist(widget.user))).then((value) {
                             setState(() {
                               _futurePl = getUserPlaylists(widget.user);
                             });
@@ -332,14 +353,33 @@ class SongsState extends State<Songs>{
                         scrollDirection: Axis.horizontal,
                         itemCount: _playlists.length,
                         itemBuilder: (context, i) {
-                          return _buildRowPlaylist(_playlists[i].nombre, i);
+                          return _buildRowPlaylist(_playlists[i]);
                         }
                       ),
                     ),
                   ),
                 ],
               ),
-            Container(height: 220,),
+            Expanded(
+              child:Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                   if (viewPlaylist) Padding(
+                     padding: const EdgeInsets.all(8.0),
+                     child: Row(
+                      children: <Widget>[
+                        Text(nomPlaylist, style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w300),)
+                      ],
+                  ),
+                   ),
+                  if (viewPlaylist) showPlaylist(playlist)
+                  else Container(height: 190,)
+                ],
+              )
+            ),
             _buildSongBar(),
             ]
           ),
@@ -449,7 +489,7 @@ class SongsState extends State<Songs>{
                           itemCount: _playlists.length,
                           itemBuilder: (context, i) {
                             print(i);
-                            return _buildRowPlaylist(_playlists[i].nombre, i);
+                            return _buildRowPlaylist(_playlists[i]);
                           }
     
                       ),
@@ -594,24 +634,35 @@ class SongsState extends State<Songs>{
         );
       }
     
-    Widget _buildRowPlaylist(var playlistName, var index){
-      return Container(
-        child: Row(
-          children: <Widget>[
-            Container(width: 30,),
-            Column(
-              children: <Widget>[
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: _playlistDecoration(),
-                  child: Image.asset('images/appleMusic.png'),
-                ),
-                Container(height: 10,),
-                Text(playlistName),
-              ],
-            ),
-          ],
+    Widget _buildRowPlaylist(Playlist _playlist){
+      return new GestureDetector(
+        onTap: () {
+          setState(() {
+            viewPlaylist = true;
+            playlist = _playlist;
+            _futurels = getPlaylistSongs(playlist);
+            nomPlaylist = _playlist.nombre;
+            print(playlist.id);
+          });
+        },
+        child: Container(
+          child: Row(
+            children: <Widget>[
+              Container(width: 30,),
+              Column(
+                children: <Widget>[
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: _playlistDecoration(),
+                    child: Image.asset('images/appleMusic.png'),
+                  ),
+                  Container(height: 10,),
+                  Text(_playlist.nombre),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -815,5 +866,65 @@ class SongsState extends State<Songs>{
       });
     }
     return _list;
+  }
+
+   Future<List<Song>> getPlaylistSongs(Playlist playlist) async{
+    List<Song> _list;
+    int playlistId = playlist.id;
+    print('getSongsPlaylist');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/playlist/songList/$playlistId');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('SongsPlaylist Response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      if(!mounted)
+      setState(() {
+        jsonData = json.decode(response.body);
+        _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
+      });
+    }
+    return _list;
+  }  
+
+  Widget showPlaylist(Playlist playlist) {
+ 
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 179,
+        child: FutureBuilder<List<Song>>(
+          future: _futurels,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+            else _songlist = snapshot.data;
+            return new Scaffold(
+              body: new ListView.builder(
+                itemCount: _songlist.length,
+                itemBuilder: (context, index) {
+                 var item = _songlist[index];
+                  return Card(
+                    child: ListTile(
+                      leading:Container(
+                        height: 50,
+                        width: 50,
+                        decoration: _myBoxDecoration(),
+                        child: Image.asset('images/appleMusic.png')
+                      ),
+                      title: Text(item.nombre),
+                      onTap: () { //  <-- onTap
+                      }
+                    )
+                  );
+                }
+              ),
+            );
+          }
+        ),
+      ),
+    );
   }
 }
