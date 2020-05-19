@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 
 
 class ScreenArguments {
@@ -107,6 +108,25 @@ class RegisterState extends State<Register> {
       print(_name);
       usuarios(data);
     }   
+  }
+
+
+  var image;
+  String _path_image;
+
+  void _openFileExplorer2() async {
+    image = await FilePicker.getFile(
+      type: FileType.image,
+    );
+
+    print('--------------------------------------');
+    print(image.path);
+
+
+    setState(() {
+      _path_image=image.path;
+      print(_path_image);
+    });
   }
 
   @override
@@ -280,9 +300,17 @@ class RegisterState extends State<Register> {
                     ),
                   ],
                 ),
-                new FlatButton(
-                    onPressed: _toggle,
-                    child: new Text(_obscureText ? "Mostrar contraseña" : "Ocultar contraseña")),
+                Padding(
+                  padding: const EdgeInsets.only(top: 50.0, bottom: 20.0),
+                  child: Column(
+                    children: <Widget>[
+                      RaisedButton(
+                        onPressed: () => _openFileExplorer2(),
+                        child: Text("Escoger imagen"),
+                      ),
+                    ],
+                  ),
+                ),
                 Center(
                   child: RaisedButton(
                     onPressed: () {

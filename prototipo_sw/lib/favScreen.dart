@@ -24,7 +24,7 @@ class _FavScreenState extends State<FavScreen> {
         'Content-Type': 'application/json;',
       },
     );
-    print(response.statusCode);
+    print('FavPlaylist Response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
     // then parse the JSON

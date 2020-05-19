@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
+import 'package:prototipo_sw/audio.dart';
 import 'package:prototipo_sw/crear_playlist.dart';
 import 'package:prototipo_sw/model/playlist.dart';
 import 'package:prototipo_sw/model/song.dart';
+
 import 'sizeConfig.dart';
 
 import 'package:http/http.dart' as http;
@@ -197,15 +199,19 @@ class SongsState extends State<Songs>{
   }
 
   Widget _buildAll(){
+    print(SizeConfig.screenWidth);
     double tam_pantalla_alt = SizeConfig.screenHeight;
     double tam_body = tam_pantalla_alt -10-15-34-40-200;
 
     print(tam_body);
+
+
+    final audio = audioControl();
     return Container(
       color: Colors.white,
       child: Column (
         children: <Widget>[
-          FutureBuilder(
+          /*FutureBuilder(
             future: _future,
             builder: (context, snapshot){
               return IconButton(
@@ -226,7 +232,7 @@ class SongsState extends State<Songs>{
                 },
               );
             },
-          ),
+          ),*/
           Container(
             height: 10,
           ),
@@ -272,7 +278,9 @@ class SongsState extends State<Songs>{
                       }
                   ),
                 ),
-                _buildSongBar(),
+
+                audioControl(),
+                //_buildSongBar(),
               ],
             ),
           ),
@@ -332,7 +340,7 @@ class SongsState extends State<Songs>{
                     child: Container(
                       child: FloatingActionButton(
                         onPressed: () async{
-                          Navigator.push(context, 
+                          Navigator.push(context,
                           MaterialPageRoute(
                             builder: (context) => CrearPlaylist(widget.user))).then((value) {
                             setState(() {
@@ -380,7 +388,7 @@ class SongsState extends State<Songs>{
                 ],
               )
             ),
-            _buildSongBar(),
+            //_buildSongBar(),
             ]
           ),
         );
@@ -780,74 +788,74 @@ class SongsState extends State<Songs>{
     
     
       Widget _buildSongBar(){
-    
-    
-        return Positioned.fill(
-    
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: InkWell(
-              onTap: (){
-                Navigator.of(context).pushNamed('song', arguments: reproduciendo);
-              },
-              child: Container(
-    
-                height: 30,
-                child: Row (
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
-                      onPressed: (){
-                        if (reproduciendo){
-                          audioPlayer.stop();
-                        }else {
-                          audioCache.play(_songs[currentSong]);
-                        }
-    
-                        setState(() {
-                          reproduciendo = !reproduciendo;
-                        });
-    
-                      },
-                    ),
-                    Expanded(
-                      child: Container(
-                        child: Text(_songsName[currentSong],
-                          overflow: TextOverflow.clip,),
-                      ),
-                    ),
-                    IconButton(
-                      icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
-                      onPressed: (){
-                        setState((){
-                          if(volume > 0.0){
-                            volumeP = volume;
-                            volume = 0.0;
-                          }else{
-                            volume = volumeP;
-                          }
-                        });
-                      },
-                    ),
-                    Slider(
-                      value: volume,
-                      max: 1.0,
-                      onChanged: (double vol){
-    
-                        setState(() {
-                          volume = vol;
-                          audioPlayer.setVolume(volume);
-                        });
-                      },
-                    )
-                  ],
+
+
+    return Positioned.fill(
+
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: InkWell(
+          onTap: (){
+            Navigator.of(context).pushNamed('song', arguments: reproduciendo);
+          },
+          child: Container(
+
+            height: 30,
+            child: Row (
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
+                  onPressed: (){
+                    if (reproduciendo){
+                      audioPlayer.stop();
+                    }else {
+                      audioCache.play(_songs[currentSong]);
+                    }
+
+                    setState(() {
+                      reproduciendo = !reproduciendo;
+                    });
+
+                  },
                 ),
-              ),
+                Expanded(
+                  child: Container(
+                    child: Text(_songsName[currentSong],
+                      overflow: TextOverflow.clip,),
+                  ),
+                ),
+                IconButton(
+                  icon : Icon((volume > 0.0) ? Icons.volume_up : Icons.volume_mute),
+                  onPressed: (){
+                    setState((){
+                      if(volume > 0.0){
+                        volumeP = volume;
+                        volume = 0.0;
+                      }else{
+                        volume = volumeP;
+                      }
+                    });
+                  },
+                ),
+                Slider(
+                  value: volume,
+                  max: 1.0,
+                  onChanged: (double vol){
+
+                    setState(() {
+                      volume = vol;
+                      audioPlayer.setVolume(volume);
+                    });
+                  },
+                )
+              ],
             ),
           ),
-        );
-      }
+        ),
+      ),
+    );
+  }
   Future<List<Playlist>> getUserPlaylists(String correo) async{
     List<Playlist> _list;
     print('getSongs');
