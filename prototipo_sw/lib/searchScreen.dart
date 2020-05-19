@@ -492,7 +492,7 @@ class SongItemState extends State<SongItem> {
           ],
         ),
       enabled: true,
-      subtitle: new Text(widget.song.autor),
+      subtitle: new Text(widget.song.creador.username),
       //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
     );
   }

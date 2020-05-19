@@ -9,12 +9,12 @@ import 'package:http/http.dart' as http;
 import 'dart:io' as io;
 import 'package:path/path.dart' as Path;
 
-class uploadSong extends StatefulWidget {
+class UploadSong extends StatefulWidget {
   @override
-  _uploadSongState createState() => new _uploadSongState();
+  _UploadSongState createState() => new _UploadSongState();
 }
 
-class _uploadSongState extends State<uploadSong> {
+class _UploadSongState extends State<UploadSong> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _fileName;
@@ -38,20 +38,29 @@ class _uploadSongState extends State<uploadSong> {
 
 
   cancion(Map data) async{
-    var jsonData = null;
+    String email = args['correo'];
+    var jsonData;
     var response = await http.post("https://upbeatproyect.herokuapp.com/cancion/save",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(data)
     );
-    print('Response status: ${response.statusCode}');
+    print('Upload Song Response status: ${response.statusCode}');
     if(response.statusCode == 200){
-      print("He entrado al decode");
       jsonData = json.decode(response.body);
-      setState(() {
-        Navigator.pop(context);
-      });
+      int songId = jsonData['id'];
+      var response2 = await http.put("https://upbeatproyect.herokuapp.com/artista/createSong/$email/$songId",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      print('Upload Song Response2 status: ${response2.statusCode}');
+      if (response2.statusCode == 200){
+        setState(() {
+          Navigator.pop(context);
+        });
+      }
     }
   }
 
@@ -62,10 +71,9 @@ class _uploadSongState extends State<uploadSong> {
     Map data = {
       'nombre': _name,
 
-      'autor': args['correo'],
+      'creador': args['username'],
 
-      'path': _uploadedFileURL,
-      'song': ''
+      'pathMp3': _uploadedFileURL,
     };
     print(data);
     cancion(data);

@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         'song': (context) => SongScreen(),
         'change_pass': (context) => ChangePass(),
         'profileOnlyR': (context) => ProfileOnlyRScreen(),
-        'upload_song': (context) => uploadSong(),
+        'upload_song': (context) => UploadSong(),
         'song_list' : (context) => SongList(),
       }
     );
