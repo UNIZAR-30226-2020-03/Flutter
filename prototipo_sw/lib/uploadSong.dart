@@ -19,6 +19,7 @@ class _UploadSongState extends State<UploadSong> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _fileName;
   String _path;
+  String _path_image;
   Map<String, String> _paths;
   String _extension;
   bool _loadingPath = false;
@@ -29,6 +30,7 @@ class _UploadSongState extends State<UploadSong> {
   String _name;
   var args;
   var audio;
+  var image;
 
   @override
   void initState() {
@@ -82,6 +84,7 @@ class _UploadSongState extends State<UploadSong> {
   String _uploadedFileURL;
   Future uploadFile() async {
     String _basenamePath = Path.basename(_path);
+
     StorageReference storageReference = FirebaseStorage.instance
         .ref()
         .child(_basenamePath);
@@ -117,6 +120,21 @@ class _UploadSongState extends State<UploadSong> {
     });
   }
 
+  void _openFileExplorer2() async {
+    image = await FilePicker.getFile(
+      type: FileType.image,
+    );
+
+    print('--------------------------------------');
+    print(image.path);
+
+
+    setState(() {
+      _path_image=image.path;
+      print(_path_image);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     args = ModalRoute.of(context).settings.arguments;
@@ -124,6 +142,7 @@ class _UploadSongState extends State<UploadSong> {
     print(args['correo']);
 
     _pickingType = FileType.audio;
+
 
 
     return new MaterialApp(
@@ -224,6 +243,17 @@ class _UploadSongState extends State<UploadSong> {
 
                               )
                                   : new Container(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 50.0, bottom: 20.0),
+                              child: Column(
+                                children: <Widget>[
+                                  RaisedButton(
+                                    onPressed: () => _openFileExplorer2(),
+                                    child: Text("Escoger imagen"),
+                                  ),
+                                ],
+                              ),
                             ),
                         Center(
                           child: RaisedButton(

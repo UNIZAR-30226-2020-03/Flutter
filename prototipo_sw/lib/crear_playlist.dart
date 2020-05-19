@@ -22,7 +22,7 @@ class CrearPlaylistState extends State<CrearPlaylist> {
   // y nos permita validar el formulario
   //
   // Nota: Esto es un `GlobalKey<FormState>`, no un GlobalKey<MyCustomFormState>!
-  final _formKey = GlobalKey<FormState>();
+   final _formKey = GlobalKey<FormState>();
 
   var jsonData;
   String _description, _name;
