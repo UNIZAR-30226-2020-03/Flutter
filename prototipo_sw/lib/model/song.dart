@@ -1,29 +1,40 @@
 
 import 'dart:ffi';
 
-import 'package:prototipo_sw/model/artista.dart';
-import 'package:prototipo_sw/model/usuario.dart';
-
 class Song {
   final int id;
   final String nombre;
-  final Artista creador;
+  //final String autor;
   final String pathMp3;
   final String pathImg;
-  final Float duracion;
-  final int reproducciones;
+  final String duracion;
+  final String fecha;
+  final String reproducciones;
 
-  Song({this.id,this.nombre, this.creador, this.pathMp3, this.pathImg, this.duracion, this.reproducciones});
+  Song({this.id,this.nombre,  this.pathMp3, this.pathImg, this.duracion, this.fecha, this.reproducciones});
 
   factory Song.fromJson(Map<String, dynamic> json) {
-    return Song(
-      id: json['id'],
-      nombre: json['nombre'],
-      creador: Artista.fromJson(json['creador']),
-      pathMp3: json['pathMp3'],
-      pathImg: json['pathImg'],
-      duracion: json['duracion'],
-      reproducciones: json['reproducciones']
+    print('______');
+    print(json);
+    print(json['id']);
+    print(json['nombre']);
+    print(json['pathMp3']);
+    print(json['pathImg']);
+    print(json['duracion']);
+    print(json['fecha']);
+    print(json['reproducciones']);
+    Song song = Song(
+        id: json['id'],
+        nombre: json['nombre'],
+        pathMp3: json['pathMp3'],
+        pathImg: json['pathImg'],
+        duracion: json['duracion'],
+        fecha: json['fecha'],
+        reproducciones: json['reproducciones']
     );
+    print('______');
+    print(song);
+    print('______');
+    return song;
   }
 }

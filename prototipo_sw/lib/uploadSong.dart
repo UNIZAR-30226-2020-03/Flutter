@@ -25,7 +25,7 @@ class _UploadSongState extends State<UploadSong> {
   bool _loadingPath = false;
   FileType _pickingType = FileType.any;
   TextEditingController _controller = new TextEditingController();
-
+  String _correo;
 
   String _name;
   var args;
@@ -40,7 +40,6 @@ class _UploadSongState extends State<UploadSong> {
 
 
   cancion(Map data) async{
-    String email = args['correo'];
     var jsonData;
     var response = await http.post("https://upbeatproyect.herokuapp.com/cancion/save",
         headers: <String, String>{
@@ -48,19 +47,22 @@ class _UploadSongState extends State<UploadSong> {
         },
         body: jsonEncode(data)
     );
-    print('Upload Song Response status: ${response.statusCode}');
+    print('Response status subir cancion: ${response.statusCode}');
     if(response.statusCode == 200){
       jsonData = json.decode(response.body);
       int songId = jsonData['id'];
-      var response2 = await http.put("https://upbeatproyect.herokuapp.com/artista/createSong/$email/$songId",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+
+      var response2 = await http.put("https://upbeatproyect.herokuapp.com/artista/createSong/$_correo/$songId",
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
       );
-      print('Upload Song Response2 status: ${response2.statusCode}');
-      if (response2.statusCode == 200){
-        setState(() {
-          Navigator.pop(context);
+      print('Response status vinculo a artista: ${response2.statusCode}');
+      if (response2.statusCode == 200) {
+        Navigator.pop(context, () {
+          setState(() {});
         });
       }
     }
@@ -72,11 +74,11 @@ class _UploadSongState extends State<UploadSong> {
 
     Map data = {
       'nombre': _name,
-
-      'creador': args['username'],
-
+      'duracion': '0',
       'pathMp3': _uploadedFileURL,
+      'pathImg': _uploadedImgURL,
     };
+    print(_uploadedFileURL);
     print(data);
     cancion(data);
   }
@@ -120,6 +122,31 @@ class _UploadSongState extends State<UploadSong> {
     });
   }
 
+
+  String _uploadedImgURL;
+  Future uploadImg() async {
+    String _basenamePath = Path.basename(_path_image);
+
+    StorageReference storageReference = FirebaseStorage.instance
+        .ref()
+        .child(_basenamePath);
+    StorageUploadTask uploadTask = storageReference.putFile(image);
+    await uploadTask.onComplete;
+    print('Image Uploaded');
+    bool finish = false;
+    storageReference.getDownloadURL().then((fileURL) {
+      print('_______');
+      print(fileURL);
+      setState(() {
+        _uploadedImgURL = fileURL;
+        finish = true;
+        uploadFile();
+      });
+    });
+
+
+  }
+
   void _openFileExplorer2() async {
     image = await FilePicker.getFile(
       type: FileType.image,
@@ -140,6 +167,7 @@ class _UploadSongState extends State<UploadSong> {
     args = ModalRoute.of(context).settings.arguments;
 
     print(args['correo']);
+    _correo = args['correo'];
 
     _pickingType = FileType.audio;
 
@@ -265,7 +293,7 @@ class _UploadSongState extends State<UploadSong> {
                                 // Si el formulario es válido, queremos mostrar un Snackbar
 
                                 //print(widget.audio.path);
-                                uploadFile();
+                                uploadImg();
 
                                 //Timer(Duration(seconds: 1));
 
