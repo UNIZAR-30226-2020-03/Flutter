@@ -21,6 +21,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final String _password;
   final String _email;
   String _username, _name, _apellidos;
+  var _image;
   String _usernameArtist = '';
 
    _ProfileScreenState( this._email, this._password);
@@ -58,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<String> getUserData() async{
+    print(_password);
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/get/$_password/$_email');
     final response = await http.get(
       uri,
@@ -65,7 +67,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
+    print('Response user data status: ${response.statusCode}');
     if (response.statusCode == 200) {
+
       // If the server did return a 200 OK response,
     // then parse the JSON
       setState(() {
@@ -73,6 +77,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _username = jsonData['username'];
         _name = jsonData['nombre'];
         _apellidos = jsonData['apellidos'];
+        _image=jsonData['pathImg'];
+        print(jsonData);
+
       });
     } 
     return ('Success');
@@ -92,6 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         jsonData = json.decode(response.body);
         _usernameArtist = jsonData['username'];
+        //print(_usernameArtist);
       });
     }
     return ('Success');
@@ -102,6 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState(){
+
     _future = getUserData();
 
     super.initState();
@@ -109,6 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
  @override
   Widget build(BuildContext context) {
+
    _artist = isArtist();
     return FutureBuilder(
       future: _future,
@@ -149,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         color: Colors.red,
                         image: DecorationImage(
-                          image: NetworkImage('https://www.pngitem.com/pimgs/m/78-786501_black-avatar-png-user-icon-png-transparent-png.png'),
+                          image: NetworkImage(_image != null ? _image : 'https://www.pngitem.com/pimgs/m/78-786501_black-avatar-png-user-icon-png-transparent-png.png'),
                           fit: BoxFit.fill
                         ),
 
@@ -273,10 +283,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                  FutureBuilder(
                    future: _artist,
                    builder: (context, snapshot) {
-                     print('___');
-                     print(_usernameArtist);
+
+
                      if (_usernameArtist != null){
-                       print('artista');
+
                        return FloatingActionButton(
                            child: Icon(Icons.file_upload),
                            onPressed: () {

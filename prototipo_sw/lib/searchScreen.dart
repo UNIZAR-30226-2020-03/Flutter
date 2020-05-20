@@ -123,15 +123,20 @@ class _SearchListState extends State<SearchList>
         'Content-Type': 'application/json;',
       },
     );
-    print(response.statusCode);
+    print('Response status get all songs: ${response.statusCode}');
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
     // then parse the JSON
     print('All songs done');
       setState(() {
         jsonData = json.decode(response.body);
+        print(jsonData);
         _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
+        print(_list);
       });
+      print('__');
+      print(_list);
+      print('__');
     } 
     return _list;
   }
@@ -492,7 +497,7 @@ class SongItemState extends State<SongItem> {
           ],
         ),
       enabled: true,
-      subtitle: new Text(widget.song.autor),
+      subtitle: new Text('widget.song.autor'),
       //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
     );
   }

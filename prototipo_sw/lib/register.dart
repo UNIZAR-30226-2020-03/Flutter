@@ -5,6 +5,8 @@ import 'package:prototipo_sw/home.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as Path;
+import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ScreenArguments {
@@ -82,6 +84,8 @@ class RegisterState extends State<Register> {
 
   signUp() async {
     if (_value1){
+      print("He entrado a artista");print(_name);
+
       Map data = {
         'correo': _email,
         'nombre': _name,
@@ -90,8 +94,11 @@ class RegisterState extends State<Register> {
         'username': _username,
         'contrasenya': _password,
         'nombre_artista': _username,
-        'descripcion': _description
+        'descripcion': _description,
+        'pathImg': _uploadedFileURL
       };
+      print('------');
+      print(data);
       artistas(data);
 
     }
@@ -104,15 +111,48 @@ class RegisterState extends State<Register> {
         'correo': _email,
         'username': _username,
         'pais': _selected.name,
+        'pathImg': _uploadedFileURL
       };
       print(_name);
+      print(_uploadedFileURL);
       usuarios(data);
     }   
   }
 
 
+
+
   var image;
-  String _path_image;
+  String _path_image = '';
+
+  String _uploadedFileURL;
+  Future uploadFile() async {
+    if (_path_image != ''){
+      String _basenamePath = Path.basename(_path_image);
+
+      StorageReference storageReference = FirebaseStorage.instance
+          .ref()
+          .child(_basenamePath);
+      StorageUploadTask uploadTask = storageReference.putFile(image);
+      await uploadTask.onComplete;
+      print('File Uploaded');
+      bool finish = false;
+      storageReference.getDownloadURL().then((fileURL) {
+        print('_______');
+        print(fileURL);
+        setState(() {
+          _uploadedFileURL = fileURL;
+          finish = true;
+          signUp();
+        });
+      });
+    } else {
+      signUp();
+    }
+
+
+  }
+
 
   void _openFileExplorer2() async {
     image = await FilePicker.getFile(
@@ -318,7 +358,7 @@ class RegisterState extends State<Register> {
                       // el formulario no es válido.
                       if (_formKey.currentState.validate()) {
                         // Si el formulario es válido, queremos mostrar un Snackbar
-                        signUp();
+                        uploadFile();
                       }
                       else if (!_formKey.currentState.validate()) {
                       }

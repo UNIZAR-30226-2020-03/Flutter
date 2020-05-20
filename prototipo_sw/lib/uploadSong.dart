@@ -25,7 +25,7 @@ class _uploadSongState extends State<uploadSong> {
   bool _loadingPath = false;
   FileType _pickingType = FileType.any;
   TextEditingController _controller = new TextEditingController();
-
+  String _correo;
 
   String _name;
   var args;
@@ -47,13 +47,25 @@ class _uploadSongState extends State<uploadSong> {
         },
         body: jsonEncode(data)
     );
-    print('Response status: ${response.statusCode}');
+    print('Response status subir cancion: ${response.statusCode}');
     if(response.statusCode == 200){
       print("He entrado al decode");
       jsonData = json.decode(response.body);
-      setState(() {
-        Navigator.pop(context);
-      });
+      int songId = jsonData['id'];
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+
+      var response2 = await http.put("https://upbeatproyect.herokuapp.com/artista/createSong/$_correo/$songId",
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          }, body: jsonEncode(data)
+      );
+      print('Response status vinculo a artista: ${response2.statusCode}');
+      if (response2.statusCode == 200) {
+        Navigator.pop(context, () {
+          setState(() {});
+        });
+      }
     }
   }
 
@@ -65,10 +77,12 @@ class _uploadSongState extends State<uploadSong> {
       'nombre': _name,
 
       'autor': args['correo'],
-
-      'path': _uploadedFileURL,
+      'duracion': '0',
+      'pathMp3': _uploadedFileURL,
+      'pathImg': _uploadedImgURL,
       'song': ''
     };
+    print(_uploadedFileURL);
     print(data);
     cancion(data);
   }
@@ -112,6 +126,31 @@ class _uploadSongState extends State<uploadSong> {
     });
   }
 
+
+  String _uploadedImgURL;
+  Future uploadImg() async {
+    String _basenamePath = Path.basename(_path_image);
+
+    StorageReference storageReference = FirebaseStorage.instance
+        .ref()
+        .child(_basenamePath);
+    StorageUploadTask uploadTask = storageReference.putFile(image);
+    await uploadTask.onComplete;
+    print('Image Uploaded');
+    bool finish = false;
+    storageReference.getDownloadURL().then((fileURL) {
+      print('_______');
+      print(fileURL);
+      setState(() {
+        _uploadedImgURL = fileURL;
+        finish = true;
+        uploadFile();
+      });
+    });
+
+
+  }
+
   void _openFileExplorer2() async {
     image = await FilePicker.getFile(
       type: FileType.image,
@@ -132,6 +171,7 @@ class _uploadSongState extends State<uploadSong> {
     args = ModalRoute.of(context).settings.arguments;
 
     print(args['correo']);
+    _correo = args['correo'];
 
     _pickingType = FileType.audio;
 
@@ -257,7 +297,7 @@ class _uploadSongState extends State<uploadSong> {
                                 // Si el formulario es válido, queremos mostrar un Snackbar
 
                                 //print(widget.audio.path);
-                                uploadFile();
+                                uploadImg();
 
                                 //Timer(Duration(seconds: 1));
 
