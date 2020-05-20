@@ -7,9 +7,9 @@ class Song {
   //final String autor;
   final String pathMp3;
   final String pathImg;
-  final String duracion;
+  final double duracion;
   final String fecha;
-  final String reproducciones;
+  final int reproducciones;
 
   Song({this.id,this.nombre,  this.pathMp3, this.pathImg, this.duracion, this.fecha, this.reproducciones});
 

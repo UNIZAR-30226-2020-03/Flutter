@@ -47,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON
-      if (this.mounted) {
+      if (!this.mounted) {
         setState(() {
           jsonData = json.decode(response.body);
           _username = jsonData['username'];
@@ -112,6 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState(){
 
     _future = getUserData();
+    _artist = isArtist();
 
     super.initState();
   }
@@ -119,7 +120,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
  @override
   Widget build(BuildContext context) {
 
-   _artist = isArtist();
     return FutureBuilder(
       future: _future,
       builder: (context, snapshot) {
