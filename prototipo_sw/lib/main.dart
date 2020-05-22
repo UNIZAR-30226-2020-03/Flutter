@@ -6,6 +6,7 @@ import 'package:prototipo_sw/first_screen.dart';
 import 'package:prototipo_sw/login.dart';
 import 'package:prototipo_sw/songScreen.dart';
 import 'package:prototipo_sw/crear_playlist.dart';
+import 'AudioControl.dart';
 
 import 'package:prototipo_sw/uploadSong.dart';
 import 'package:prototipo_sw/SongListScreen.dart';

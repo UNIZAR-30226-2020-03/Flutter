@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/AudioControl.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:http/http.dart' as http;
@@ -12,8 +13,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 class ScreenArguments {
   final String email;
   final String pass;
+  final AudioControl audio;
 
-  ScreenArguments(this.email, this.pass);
+  ScreenArguments(this.email, this.pass, this.audio);
 }
 
 class Register extends StatefulWidget {
@@ -58,8 +60,10 @@ class RegisterState extends State<Register> {
     print('Response status: ${response.statusCode}');
     if(response.statusCode == 200){
       jsonData = json.decode(response.body);
+      var audio = AudioControl();
+
       setState(() {
-        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password));
+        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password, audio));
       });
     }
   }
@@ -76,16 +80,17 @@ class RegisterState extends State<Register> {
     if(response.statusCode == 200){
       print("He entrado al decode");
       jsonData = json.decode(response.body);
+      var audio = AudioControl();
       setState(() {
-        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password));
+        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password,audio));
       });
     }
   }
 
   signUp() async {
     if (_value1){
-      print("He entrado a artista");print(_name);
-
+      print("He entrado a artista");
+      print(_name);
       Map data = {
         'correo': _email,
         'nombre': _name,

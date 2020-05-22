@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/AudioControl.dart';
 import 'package:prototipo_sw/Profile.dart';
 import 'package:prototipo_sw/favScreen.dart';
 import 'package:prototipo_sw/pantallas.dart';
@@ -16,6 +17,7 @@ class Home extends StatefulWidget{
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   String _email, _password;
+  AudioControl audio;
 
   List<Widget> _children;
   int _currentIndex = 0;
@@ -51,13 +53,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     final ScreenArguments arguments = ModalRoute.of(context).settings.arguments;
     setState(() {
-      _password = arguments.pass; //acordarse de cambiar esto: _password = arguments.pass;
-      _email = arguments.email; //_email = arguments.email;
+      _password = arguments.pass;
+      _email = arguments.email;
+      audio = arguments.audio;
+
       _children = [
-    HomeScreen(_email),
-    FavScreen(_email),
-    SearchList(_email),
-    ProfileScreen(_email, _password),
+    HomeScreen(_email, audio),
+    FavScreen(_email, audio),
+    SearchList(_email, audio),
+    ProfileScreen(_email, _password, audio),
   ];
     });
 

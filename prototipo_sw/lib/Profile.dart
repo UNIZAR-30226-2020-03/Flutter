@@ -1,17 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'AudioControl.dart';
 import 'package:http/http.dart' as http;
 
 
 class ProfileScreen extends StatefulWidget {
   final String _password;
   final String _email;
-
-  ProfileScreen(this._email, this._password);
+  final AudioControl audio;
+  ProfileScreen(this._email, this._password, this.audio);
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState(_email, _password);
+  _ProfileScreenState createState() => _ProfileScreenState(_email, _password, audio);
 }
 
 
@@ -23,8 +24,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _username, _name, _apellidos;
   var _image;
   String _usernameArtist = '';
-
-   _ProfileScreenState( this._email, this._password);
+  final AudioControl audio;
+   _ProfileScreenState( this._email, this._password, this.audio);
 
   var jsonData;
   

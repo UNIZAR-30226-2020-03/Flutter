@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/register.dart';
 import 'package:prototipo_sw/home.dart';
+import 'AudioControl.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
@@ -61,8 +62,11 @@ class LoginState extends State<Login> {
       // If the server did return a 200 OK response,
       // then parse the JSON
       var jsonData = json.decode(response.body);
+      var audio = AudioControl();
+
       setState(() {
-        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password));
+
+        Navigator.of(context).pushNamedAndRemoveUntil('home', (_) => false, arguments: ScreenArguments(_email, _password, audio));
       });
     } 
     else {

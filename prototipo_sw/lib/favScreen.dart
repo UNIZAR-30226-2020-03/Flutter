@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'AudioControl.dart';
 import 'package:prototipo_sw/model/usuario.dart';
 
 class FavScreen extends StatefulWidget{
 
   final String email;
-  const FavScreen(this.email);
+  final AudioControl audio;
+  const FavScreen(this.email, this.audio);
   @override
-  _FavScreenState createState() => _FavScreenState();
+  _FavScreenState createState() => _FavScreenState(audio);
 }
 
 class _FavScreenState extends State<FavScreen> {
   var jsonData;
   List<Usuario> followingList;
+  final AudioControl audio;
+  _FavScreenState(this.audio);
 
   Future<List<Usuario>> getFollowingList(String _email) async{
     List<Usuario> _list;

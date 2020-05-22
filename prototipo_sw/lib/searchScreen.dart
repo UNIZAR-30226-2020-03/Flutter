@@ -4,13 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:prototipo_sw/model/song.dart';
 import 'package:prototipo_sw/model/usuario.dart';
 import 'package:prototipo_sw/user_playlists.dart';
+import 'AudioControl.dart';
 
 
 
 class SearchList extends StatefulWidget {
 
   final String _email;
-  SearchList(this._email);
+  final AudioControl audio;
+  SearchList(this._email, this.audio);
   @override
   _SearchListState createState() => new _SearchListState();
 
@@ -18,6 +20,7 @@ class SearchList extends StatefulWidget {
 
 class _SearchListState extends State<SearchList>
 {
+
   Widget appBarTitle = new Text("Explora...", style: new TextStyle(color: Colors.white),);
   Widget _leading;
   Icon actionIcon = new Icon(Icons.search, color: Colors.white,);
@@ -31,6 +34,7 @@ class _SearchListState extends State<SearchList>
   var jsonData;
 
   Future _future;
+
 
   void _handleRadioValueChange1(int value) {
     setState(() {
@@ -114,6 +118,8 @@ class _SearchListState extends State<SearchList>
     });
   }
 
+
+
   Future<List<Song>> getAllSongs() async{
     List<Song> _list;
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/allSongs');
@@ -130,13 +136,11 @@ class _SearchListState extends State<SearchList>
     print('All songs done');
       setState(() {
         jsonData = json.decode(response.body);
-        print(jsonData);
+
         _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
         print(_list);
       });
-      print('__');
-      print(_list);
-      print('__');
+
     } 
     return _list;
   }
@@ -183,13 +187,14 @@ class _SearchListState extends State<SearchList>
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
         else _list = snapshot.data;
         return new Scaffold(
-          key: key,
-          appBar: buildBar(context),
-          body: new ListView(
-            padding: new EdgeInsets.symmetric(vertical: 8.0),
-            children: _IsSearching ? _buildSearchList() :  _buildList(),
-          ),
-        );
+              key: key,
+              appBar: buildBar(context),
+              body: new ListView(
+                padding: new EdgeInsets.symmetric(vertical: 8.0),
+                children: _IsSearching ? _buildSearchList() :  _buildList(),
+              ),
+            );
+
       }
     );
   }
@@ -413,7 +418,7 @@ class UsuarioItemState extends State<UsuarioItem> {
               decoration: BoxDecoration(
                 color: Colors.red,
                 image: DecorationImage(
-                  image: NetworkImage('https://www.pngitem.com/pimgs/m/78-786501_black-avatar-png-user-icon-png-transparent-png.png'),
+                  image: NetworkImage((widget.user.pathImg == null) ? 'https://www.pngitem.com/pimgs/m/78-786501_black-avatar-png-user-icon-png-transparent-png.png' : widget.user.pathImg),
                   fit: BoxFit.fill
                 ),
                 borderRadius: BorderRadius.all(
@@ -452,6 +457,44 @@ class SongItem extends StatefulWidget {
 class SongItemState extends State<SongItem> {
 
   Icon fav = Icon(Icons.favorite_border) ;
+  Future _future2;
+  var jsonData;
+  String _autor;
+  var _creador;
+  int id;
+  bool hayAutor = false;
+
+  Future<String> getSongAutor() async{
+    List<Song> _list;
+    id = widget.song.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/getbyId/$id');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print('Response status get songs autor: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('All songs done');
+      setState(() {
+        jsonData = json.decode(response.body);
+
+        _creador = jsonData['creador'];
+        print(_creador);
+        print('_____23432____');
+        _autor = _creador['username'];
+        print(_autor);
+        print('_____23432____');
+        hayAutor = true;
+
+      });
+
+    }
+    return _autor;
+  }
 
   @override
   void initState() { 
@@ -460,49 +503,56 @@ class SongItemState extends State<SongItem> {
   }
   @override
   Widget build(BuildContext context) {
-    return new ListTile(
-      title: new Text(widget.song.nombre), 
-      trailing: 
-        Wrap(
-          children: <Widget>[
-            IconButton(
-              icon: fav,
-              color: Colors.red,
-              onPressed: () {
-                print(fav);
-                if (fav.icon == (Icons.favorite_border)){
-                  setState(() {
-                    fav = Icon(Icons.favorite);
-                  });
-                }
-                else {
-                  setState(() {
-                    fav = Icon(Icons.favorite_border);
-                  });
-                }
-              }
+    _future2 = getSongAutor();
+    return FutureBuilder<dynamic>(
+      future: _future2,
+      builder: (context, snapshot) {
+        return new ListTile(
+          title: new Text(widget.song.nombre),
+          trailing:
+            Wrap(
+              children: <Widget>[
+                IconButton(
+                  icon: fav,
+                  color: Colors.red,
+                  onPressed: () {
+                    print(fav);
+                    if (fav.icon == (Icons.favorite_border)){
+                      setState(() {
+                        fav = Icon(Icons.favorite);
+                      });
+                    }
+                    else {
+                      setState(() {
+                        fav = Icon(Icons.favorite_border);
+                      });
+                    }
+                  }
+                ),
+                PopupMenuButton<String>(
+                  onSelected: choiceAction,
+                  itemBuilder: (BuildContext context){
+                    return Options.choices.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+
+                    }).toList();
+                  },
+                ),
+              ],
             ),
-            PopupMenuButton<String>(
-              onSelected: choiceAction,
-              itemBuilder: (BuildContext context){
-                return Options.choices.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                  
-                }).toList();
-              },
-            ),
-          ],
-        ),
-      enabled: true,
-      subtitle: new Text('widget.song.autor'),
-      //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+          enabled: true,
+          subtitle: new Text(hayAutor ? _autor : ''),
+          //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+        );
+      }
     );
   }
 
   void choiceAction(String choice) {
+
     if (choice == Options.p1){
       int songId = widget.song.id;
       print ("Añadir a Playlist");
