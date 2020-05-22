@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audiofileplayer/audiofileplayer.dart';
+import 'package:http/http.dart' as http;
 
 class ScreenArguments2 {
   final bool reproduciendo;
@@ -75,10 +76,43 @@ class AudioControl {
     }
 
   }
+  int idSong;
 
-  int reproducir(String song, String nomCanc, String Img){
+  Future<void> streamSong() async{
+    print('streamSong');
+    print(idSong);
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/getStreamUrlMp3byId/$idSong');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response status stream: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      /*setState(() {
+
+        print(response.body);
+        print('--');
+        //jsonData = json.decode(response.body);
+        cancion = response.body;
+
+        print(cancion);
+        print('--');
+      });*/
+
+    }
+    return ('Success');
+  }
+
+  void reproducir(String song, String nomCanc, String Img, int id) async{
+    idSong = id;
     ImgPath = Img;
     songName = nomCanc;
+
+    Future fut = streamSong();
     print(nomCanc);
     print('reproducir');
     print (reproduciendo);
@@ -102,7 +136,6 @@ class AudioControl {
     audio.play();
     reproduciendo = true;
     print(reproduciendo);
-    return 0;
   }
 }
 
@@ -183,11 +216,12 @@ class _AudioBarState extends State<AudioBar> {
     if (reproduciendo){
       print('rep = true');
       icon = true;
+      if (mitad){
+        print('mitad');
+        icon = false;
+      }
     }
-    if (mitad){
 
-      icon = false;
-    }
     print('icon');
     print(icon);
 

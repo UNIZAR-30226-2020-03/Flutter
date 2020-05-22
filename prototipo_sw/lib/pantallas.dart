@@ -90,33 +90,7 @@ class SongsState extends State<Songs>{
 
 
 
-  Future<void> streamSong() async{
-    print('streamSong');
-    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/getStreamUrl/true damage');
-    final response = await http.get(
-      uri,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-    print('Response status stream: ${response.statusCode}');
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON
-      setState(() {
 
-        print(response.body);
-        print('--');
-        //jsonData = json.decode(response.body);
-        cancion = response.body;
-
-        print(cancion);
-        print('--');
-      });
-
-    }
-    return ('Success');
-  }
 
 
   Future<String> getSongs() async{
@@ -170,7 +144,7 @@ class SongsState extends State<Songs>{
     super.initState();
     _futurePl = getUserPlaylists(widget.user);
     _futureP2 = getUserAlbums(widget.user);
-    _future = streamSong();
+
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
     playlist = null;
@@ -1053,10 +1027,8 @@ class SongsState extends State<Songs>{
                       ),
                       title: Text(item.nombre),
                       onTap: () { //
-                          print('algo');
-                          //var audio = AudioControl();
-                          //audio.reproducir(item.pathMp3);
-                          audio.reproducir(item.pathMp3, item.nombre, item.pathImg);
+
+                          audio.reproducir(item.pathMp3, item.nombre, item.pathImg, item.id);
                         // <-- onTap
                       }
                     )
