@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/home.dart';
 import 'package:prototipo_sw/model/playlist.dart';
 
 import 'package:http/http.dart' as http;
@@ -37,12 +38,10 @@ class _UserPlaylistsState extends State<UserPlaylists> {
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-            elevation: 0.0,
-            brightness: Brightness.light,
           centerTitle: true,
           title: Center(
-            child: Image.asset('images/logoDefinitivo3.png', )
-          )
+              child: AppBarImage()
+          ),
         ),
         body: FutureBuilder<List<Playlist>>(
         future: _future,

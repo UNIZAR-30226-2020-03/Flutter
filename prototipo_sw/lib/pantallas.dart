@@ -86,7 +86,9 @@ class SongsState extends State<Songs>{
   Playlist playlist;
   Album album;
   bool viewPlaylist;
+  bool viewAlbum;
   String nomPlaylist = "";
+  String nomAlbum = "";
 
 
 
@@ -150,6 +152,7 @@ class SongsState extends State<Songs>{
     playlist = null;
     album = null;
     viewPlaylist = false;
+    viewAlbum = false;
     var auxAudio = AuxAudioBar();
     auxAudio.printVol();
     audio2 = AudioBar(audio, auxAudio);
@@ -166,18 +169,23 @@ class SongsState extends State<Songs>{
        if (viewPlaylist) setState(() {
         viewPlaylist = false;
       });
+       if (viewAlbum) setState(() {
+         viewAlbum = false;
+       });
       return Scaffold(
         body: _buildPodcasts(),
       );
     }else if (_currentScreenHomeBool[2]){
-       if (viewPlaylist) setState(() {
+      if (viewPlaylist) setState(() {
         viewPlaylist = false;
       });
       return Scaffold(
         body: _buildAlbums(),
       );
     }else if (_currentScreenHomeBool[1]){
-     
+      if (viewAlbum) setState(() {
+        viewAlbum = false;
+      });
       return Scaffold(
         body: _buildPlayLists(),
     );
@@ -185,6 +193,9 @@ class SongsState extends State<Songs>{
        if (viewPlaylist) setState(() {
         viewPlaylist = false;
       });
+       if (viewAlbum) setState(() {
+         viewAlbum = false;
+       });
       return Scaffold(
         body: _buildAll(),
       );
@@ -472,17 +483,17 @@ class SongsState extends State<Songs>{
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: <Widget>[
-                              if (viewPlaylist) Padding(
+                              if (viewAlbum) Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Row(
                                   children: <Widget>[
-                                    Text(nomPlaylist, style: TextStyle(
+                                    Text(nomAlbum, style: TextStyle(
                                         fontSize: 20.0,
                                         fontWeight: FontWeight.w300),)
                                   ],
                                 ),
                               ),
-                              if (viewPlaylist) showPlaylist(playlist)
+                              if (viewAlbum) showAlbum(album)
                               else Container(height: 190,),
 
                             ],
@@ -711,7 +722,9 @@ class SongsState extends State<Songs>{
                     width: 120,
                     height: 120,
                     decoration: _playlistDecoration(),
-                    child: Image.asset('images/appleMusic.png'),
+                    child: (_playlist.pathImg != null)
+                        ? Image.network(_playlist.pathImg)
+                        : Image.asset('images/appleMusic.png'),
                   ),
                   Container(height: 10,),
                   Text(_playlist.nombre),
@@ -783,11 +796,11 @@ class SongsState extends State<Songs>{
         return new GestureDetector(
           onTap: () {
             setState(() {
-              viewPlaylist = true;
+              viewAlbum = true;
               album = _album;
-              _futurels = getAlbumSongs(album);
-              nomPlaylist = _album.nombre;
-              print(playlist.id);
+              _futurels2 = getAlbumSongs(album);
+              nomAlbum = _album.nombre;
+              print(album.id);
             });
           },
           child: Container(
@@ -800,7 +813,9 @@ class SongsState extends State<Songs>{
                       width: 120,
                       height: 120,
                       decoration: _albumDecoration(),
-                      child: Image.asset('images/appleMusic.png'),
+                      child: (_album.pathImg != null)
+                        ? Image.network(_album.pathImg)
+                        : Image.asset('images/appleMusic.png'),
                     ),
                     Container(height: 10,),
                     Text(_album.nombre),
@@ -931,7 +946,7 @@ class SongsState extends State<Songs>{
 
   Future<List<Album>> getUserAlbums(String correo) async{
     List<Album> _list;
-    print('getSongs');
+    print('getAlbums');
     var uri = Uri.https('upbeatproyect.herokuapp.com','/artista/myAlbums/$correo');
     final response = await http.get(
       uri,
@@ -939,7 +954,7 @@ class SongsState extends State<Songs>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    print('Playlist Response status: ${response.statusCode}');
+    print('Album Response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       setState(() {
         jsonData = json.decode(response.body);
@@ -1037,6 +1052,47 @@ class SongsState extends State<Songs>{
               ),
             );
           }
+        ),
+      ),
+    );
+  }
+
+  Widget showAlbum(Album album) {
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 179,
+        child: FutureBuilder<List<Song>>(
+            future: _futurels2,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+              else _songlist = snapshot.data;
+              return new Scaffold(
+                body: new ListView.builder(
+                    itemCount: _songlist.length,
+                    itemBuilder: (context, index) {
+                      var item = _songlist[index];
+                      return Card(
+                          child: ListTile(
+                              leading:Container(
+                                height: 50,
+                                width: 50,
+                                decoration: _myBoxDecoration(),
+                                child: Image.network(item.pathImg),
+                              ),
+                              title: Text(item.nombre),
+                              onTap: () { //
+
+                                audio.reproducir(item.pathMp3, item.nombre, item.pathImg, item.id);
+                                // <-- onTap
+                              }
+                          )
+                      );
+                    }
+                ),
+              );
+            }
         ),
       ),
     );

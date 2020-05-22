@@ -1,8 +1,16 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:firebase_storage/firebase_storage.dart';
+
 import 'dart:convert';
+
+import 'package:path/path.dart' as Path;
+
 
 class CrearAlbum extends StatefulWidget {
 
@@ -23,6 +31,9 @@ class CrearAlbumState extends State<CrearAlbum> {
   //
   // Nota: Esto es un `GlobalKey<FormState>`, no un GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
+  File image;
+  String _path_image;
+  String _uploadedImgURL;
 
   var jsonData;
   String _description, _name;
@@ -31,7 +42,8 @@ class CrearAlbumState extends State<CrearAlbum> {
     String correo = widget.user;
     Map data = {
       'nombre': _name,
-      'descripcion' : _description
+      'descripcion' : _description,
+      'pathImg' : _uploadedImgURL
     };
     var response = await http.post("https://upbeatproyect.herokuapp.com/album/save",
         headers: <String, String>{
@@ -42,10 +54,10 @@ class CrearAlbumState extends State<CrearAlbum> {
     print('Response status album save: ${response.statusCode}');
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
-      int playlistId = jsonData['id'];
+      int albumId = jsonData['id'];
       // If the server did return a 200 OK response,
       // then parse the JSON
-      var response2 = await http.put("https://upbeatproyect.herokuapp.com/artista/createAlbum/$correo/$playlistId",
+      var response2 = await http.put("https://upbeatproyect.herokuapp.com/artista/createAlbum/$correo/$albumId",
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           }, body: jsonEncode(data)
@@ -57,6 +69,42 @@ class CrearAlbumState extends State<CrearAlbum> {
         });
       }
     }
+  }
+
+  Future uploadImg() async {
+    String _basenamePath = Path.basename(_path_image);
+
+    StorageReference storageReference = FirebaseStorage.instance
+        .ref()
+        .child(_basenamePath);
+    StorageUploadTask uploadTask = storageReference.putFile(image);
+    await uploadTask.onComplete;
+    print('Image Uploaded');
+    storageReference.getDownloadURL().then((fileURL) {
+      print('_______');
+      print( "FIREBASE :" + fileURL);
+      setState(() {
+        _uploadedImgURL = fileURL;
+        createNew();
+      });
+    });
+
+
+  }
+
+  void _openFileExplorer2() async {
+    image = await FilePicker.getFile(
+      type: FileType.image,
+    );
+
+    print('--------------------------------------');
+    print(image.path);
+
+
+    setState(() {
+      _path_image=image.path;
+      print(_path_image);
+    });
   }
 
   @override
@@ -95,6 +143,17 @@ class CrearAlbumState extends State<CrearAlbum> {
               maxLines: 7,
               onChanged: (val) => _description = val,
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 33.0, top: 50.0, bottom: 20.0),
+              child: Column(
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: () => _openFileExplorer2(),
+                    child: Text("Escoger imagen"),
+                  ),
+                ],
+              ),
+            ),
             Container(height: 10,),
             Center(
               child: Container(
@@ -118,7 +177,7 @@ class CrearAlbumState extends State<CrearAlbum> {
                     // devolverá true si el formulario es válido, o falso si
                     // el formulario no es válido.
                     if (_formKey.currentState.validate()) {
-                      createNew();
+                      uploadImg();
                     }
                     else if (!_formKey.currentState.validate()) {
                       Scaffold.of(context).

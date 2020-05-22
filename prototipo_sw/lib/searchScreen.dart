@@ -508,6 +508,13 @@ class SongItemState extends State<SongItem> {
       future: _future2,
       builder: (context, snapshot) {
         return new ListTile(
+          leading: Container(
+              height: 50,
+              width: 50,
+              decoration: _myBoxDecoration(),
+              child: (widget.song.pathImg != null) ? Image.network(widget.song.pathImg)
+              : Image.asset('images/appleMusic.png')
+          ),
           title: new Text(widget.song.nombre),
           trailing:
             Wrap(
@@ -548,6 +555,15 @@ class SongItemState extends State<SongItem> {
           //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
         );
       }
+    );
+  }
+
+  BoxDecoration _myBoxDecoration(){
+    return BoxDecoration(
+        border: Border.all(
+          color: Colors.cyan,
+          width: 1.5,),
+        borderRadius: BorderRadius.all(Radius.circular(5))
     );
   }
 

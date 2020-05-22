@@ -1,8 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/uploadSong.dart';
 import 'AudioControl.dart';
+
 import 'package:http/http.dart' as http;
+
+import 'package:path/path.dart' as Path;
+
 
 
 class ProfileScreen extends StatefulWidget {
@@ -23,6 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final String _email;
   String _username, _name, _apellidos;
   var _image;
+  File image;
+  String _path_image;
   String _usernameArtist = '';
   final AudioControl audio;
    _ProfileScreenState( this._email, this._password, this.audio);
@@ -36,9 +46,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'apellidos': _apellidos,
         'pais': jsonData['pais'],
         'username': _username,
-        'contrasenya': _password
+        'contrasenya': _password,
+        'pathImg': _image
+
     };
-    var response = await http.put("https://upbeatproyect.herokuapp.com/usuario/updateUser/$_email",  
+    var response = await http.put("https://upbeatproyect.herokuapp.com/cliente/update/$_email",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -118,6 +130,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
   }
 
+  Future uploadImg() async {
+    String _basenamePath = Path.basename(_path_image);
+
+    StorageReference storageReference = FirebaseStorage.instance
+        .ref()
+        .child(_basenamePath);
+    StorageUploadTask uploadTask = storageReference.putFile(image);
+    await uploadTask.onComplete;
+    print('Image Uploaded');
+    storageReference.getDownloadURL().then((fileURL) {
+      print('_______');
+      print(fileURL);
+      setState(() {
+        _image = fileURL;
+        update();
+      });
+    });
+
+
+  }
+
+  void _openFileExplorer2() async {
+    image = await FilePicker.getFile(
+      type: FileType.image,
+    );
+
+    print('--------------------------------------');
+    print(image.path);
+
+
+    setState(() {
+      _path_image=image.path;
+      print(_path_image);
+    });
+    uploadImg();
+  }
+
  @override
   Widget build(BuildContext context) {
 
@@ -155,6 +204,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ]
                     ),
                     child: Container(
+                      child: GestureDetector(
+                        onTap:() => _openFileExplorer2() ,
+                      ),
                       width: 150.0,
                       height: 150.0,
                       decoration: BoxDecoration(
@@ -291,8 +343,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                        return FloatingActionButton(
                            child: Icon(Icons.file_upload),
                            onPressed: () {
-                             Navigator.of(context).pushNamed('upload_song',
-                                 arguments: jsonData);
+                             Navigator.push(context,
+                                 MaterialPageRoute(
+                                 builder: (context) => UploadSong(widget._email)));
                            }
                        );
                      } else {
@@ -310,21 +363,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     );
-  }
-}
-
-
-class getClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size){
-    /*var path = new Path();
-    path.lineTo(0.0, size.height/2.25);
-    path.lineTo(size.width + 125, 0.0);
-    return path;*/
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper){
-    return true;
   }
 }
