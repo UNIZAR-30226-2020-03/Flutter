@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:prototipo_sw/albumScreen.dart';
+import 'package:prototipo_sw/model/album.dart';
+import 'package:prototipo_sw/model/playlist.dart';
 import 'package:prototipo_sw/model/song.dart';
 import 'package:prototipo_sw/model/usuario.dart';
+import 'package:prototipo_sw/playlistScreen.dart';
 import 'package:prototipo_sw/user_playlists.dart';
 import 'AudioControl.dart';
 
@@ -49,8 +53,12 @@ class _SearchListState extends State<SearchList>
           selected = "CANCION";
           break;
         case 2:
+          _future = getAllPlaylists();
           selected = "PLAYLIST";
           break;
+        case 3:
+          _future = getAllAlbums();
+          selected = "ALBUMS";
       } 
       Navigator.pop(context);
     });
@@ -94,6 +102,15 @@ class _SearchListState extends State<SearchList>
                 'Playlists',
                 style: new TextStyle(fontSize: 16.0),
               ),
+              new Radio(
+                value: 3,
+                groupValue: _radioValue1,
+                onChanged: _handleRadioValueChange1,
+              ),
+              new Text(
+                'Álbumes',
+                style: new TextStyle(fontSize: 16.0),
+              ),
             ],
           ),
         ),
@@ -119,6 +136,29 @@ class _SearchListState extends State<SearchList>
   }
 
 
+  Future<List<Album>> getAllAlbums() async{
+    List<Album> _list;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/album/allAlbums');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print('Response status get all songs: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('All albumss done');
+      setState(() {
+        jsonData = json.decode(response.body);
+
+        _list = (jsonData as List).map((p) => Album.fromJson(p)).toList();
+        print(_list);
+      });
+    }
+    return _list;
+  }
 
   Future<List<Song>> getAllSongs() async{
     List<Song> _list;
@@ -167,8 +207,31 @@ class _SearchListState extends State<SearchList>
       }    
     }
     return _list;
-  } 
+  }
 
+  Future<List<Playlist>> getAllPlaylists() async{
+    List<Playlist> _list;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/playlist/allPlaylists');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('All playlists done');
+      if (this.mounted) {
+        setState(() {
+          jsonData = json.decode(response.body);
+          _list = (jsonData as List).map((p) => Playlist.fromJson(p)).toList();
+        });
+      }
+    }
+    return _list;
+  }
 
   @override
   void initState() {
@@ -187,14 +250,13 @@ class _SearchListState extends State<SearchList>
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
         else _list = snapshot.data;
         return new Scaffold(
-              key: key,
-              appBar: buildBar(context),
-              body: new ListView(
-                padding: new EdgeInsets.symmetric(vertical: 8.0),
-                children: _IsSearching ? _buildSearchList() :  _buildList(),
-              ),
-            );
-
+          key: key,
+          appBar: buildBar(context),
+          body: new ListView(
+            padding: new EdgeInsets.symmetric(vertical: 8.0),
+            children: _IsSearching ? _buildSearchList() :  _buildList(),
+          ),
+        );
       }
     );
   }
@@ -206,7 +268,13 @@ class _SearchListState extends State<SearchList>
     }
     else if (selected == "CANCION"){
       ret = _buildSongList();
+    }
+    else if (selected == "PLAYLIST"){
+      ret = _buildPlaylistList();
+    }
 
+    else if (selected == "ALBUMS"){
+      ret = _buildAlbumList();
     }
     return ret;
   }
@@ -218,6 +286,13 @@ class _SearchListState extends State<SearchList>
     }
     else if (selected == "CANCION"){ //CANCIONES, PLAYLISTS, ALBUMS...
       ret = _buildSongSearchList();
+    }
+    else if (selected == "PLAYLIST"){
+      ret = _buildPlaylistSearchList();
+    }
+
+    else if (selected == "ALBUMS"){
+      ret = _buildAlbumSearchList();
     }
     return ret;
   }
@@ -333,6 +408,65 @@ class _SearchListState extends State<SearchList>
           .toList();
     }
   }
+
+
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/* BÚSQUEDA DE PLAYLISTS */
+
+  List<PlaylistItem> _buildPlaylistList() {
+    //AQUI SE AÑADIRAN LAS PLAYLISTS MÁS STREMEADAS Y RECOMENDACIONES
+    return List<PlaylistItem>();
+  }
+
+  List<PlaylistItem> _buildPlaylistSearchList() {
+    if (_searchText.isEmpty) {
+      return _list.map((contact) => new PlaylistItem(contact, widget._email))
+          .toList();
+    }
+    else {
+      List<Playlist> _searchList = List();
+      for (int i = 0; i < _list.length; i++) {
+        String  name = _list.elementAt(i).nombre;
+        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
+          _searchList.add(_list.elementAt(i));
+        }
+      }
+      return _searchList.map((contact) => new PlaylistItem(contact, widget._email))
+          .toList();
+    }
+  }
+
+
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------*/
+/* BÚSQUEDA DE CANCIONES */
+
+  List<AlbumItem> _buildAlbumList() {
+    //AQUI SE AÑADIRAN LAS CANCIONES MÁS STREMEADAS Y RECOMENDACIONES
+    return List<AlbumItem>();
+  }
+
+  List<AlbumItem> _buildAlbumSearchList() {
+    if (_searchText.isEmpty) {
+      return _list.map((contact) => new AlbumItem(contact, widget._email))
+          .toList();
+    }
+    else {
+      List<Album> _searchList = List();
+      for (int i = 0; i < _list.length; i++) {
+        String  name = _list.elementAt(i).nombre;
+        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
+          _searchList.add(_list.elementAt(i));
+        }
+      }
+      return _searchList.map((contact) => new AlbumItem(contact, widget._email))
+          .toList();
+    }
+  }
+
 
 }
 
@@ -464,6 +598,49 @@ class SongItemState extends State<SongItem> {
   int id;
   bool hayAutor = false;
 
+  isFav(String me, int songId) async {
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavSong/$me/$songId');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    print ("isFAV:" + response2.statusCode.toString());
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if(ret == 0){
+        setState(() {
+          fav = Icon(Icons.favorite);
+        });
+      }
+    }
+  }
+
+  favSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favSong/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite);
+      });
+    }
+  }
+
+  unFavSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/eliminateFavSong/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite_border);
+      });
+    }
+  }
+
+
   Future<String> getSongAutor() async{
     List<Song> _list;
     id = widget.song.id;
@@ -478,7 +655,7 @@ class SongItemState extends State<SongItem> {
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON
-      print('All songs done');
+      print('get song done');
       setState(() {
         jsonData = json.decode(response.body);
 
@@ -499,6 +676,7 @@ class SongItemState extends State<SongItem> {
   @override
   void initState() { 
     super.initState();
+    isFav(widget.me, widget.song.id);
     
   }
   @override
@@ -512,7 +690,8 @@ class SongItemState extends State<SongItem> {
               height: 50,
               width: 50,
               decoration: _myBoxDecoration(),
-              child: (widget.song.pathImg != null) ? Image.network(widget.song.pathImg)
+              child: (widget.song.pathImg != null) ? FittedBox(fit: BoxFit.fill,
+                  child: Image.network(widget.song.pathImg))
               : Image.asset('images/appleMusic.png')
           ),
           title: new Text(widget.song.nombre),
@@ -525,14 +704,10 @@ class SongItemState extends State<SongItem> {
                   onPressed: () {
                     print(fav);
                     if (fav.icon == (Icons.favorite_border)){
-                      setState(() {
-                        fav = Icon(Icons.favorite);
-                      });
+                      favSong(widget.me, widget.song.id);
                     }
                     else {
-                      setState(() {
-                        fav = Icon(Icons.favorite_border);
-                      });
+                      unFavSong(widget.me, widget.song.id);
                     }
                   }
                 ),
@@ -579,11 +754,369 @@ class SongItemState extends State<SongItem> {
 
 }
 
+/*---------------------------------------------------------------------------------------*/
+/*PLAYLIST ITEMS */
+/*---------------------------------------------------------------------------------------*/
+class PlaylistItem extends StatefulWidget {
+  final Playlist playlist;
+  final String me;
+  PlaylistItem( this.playlist, this.me);
+
+  @override
+  PlaylistItemState createState() => PlaylistItemState();
+}
+
+class PlaylistItemState extends State<PlaylistItem> {
+
+  Icon fav = Icon(Icons.favorite_border) ;
+  Future _future2;
+  var jsonData;
+  String _autor;
+  var _creador;
+  int id;
+  bool hayAutor = false;
+
+  isFav(String me, int playlistID) async {
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavPlaylist/$me/$playlistID');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    print ("isFAV:" + response2.statusCode.toString());
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if(ret == 0){
+        setState(() {
+          fav = Icon(Icons.favorite);
+        });
+      }
+    }
+  }
+
+  favPlaylist(String me, int playlistId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favPlaylist/$me/$playlistId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite);
+      });
+    }
+  }
+
+  unFavSong(String me, int playlistId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/eliminateFavPlaylist/$me/$playlistId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite_border);
+      });
+    }
+  }
+
+
+  Future<String> getPlaylistAutor() async{
+
+    id = widget.playlist.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/playlist/get/$id');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print('Response status get songs autor: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('Get playlist done');
+      setState(() {
+        jsonData = json.decode(response.body);
+
+        _creador = jsonData['creador'];
+        print(_creador);
+        print('_____23432____');
+        _autor = _creador['username'];
+        print(_autor);
+        print('_____23432____');
+        hayAutor = true;
+
+      });
+
+    }
+    return _autor;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    isFav(widget.me, widget.playlist.id);
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    _future2 = getPlaylistAutor();
+    return FutureBuilder<dynamic>(
+        future: _future2,
+        builder: (context, snapshot) {
+          return new ListTile(
+            leading: Container(
+                height: 50,
+                width: 50,
+                decoration: _myBoxDecoration(),
+                child: (widget.playlist.pathImg != null) ? FittedBox(fit: BoxFit.fill,
+                    child: Image.network(widget.playlist.pathImg))
+                    : Image.asset('images/appleMusic.png')
+            ),
+            title: new Text(widget.playlist.nombre),
+            trailing:
+            Wrap(
+              children: <Widget>[
+                IconButton(
+                    icon: fav,
+                    color: Colors.red,
+                    onPressed: () {
+                      print(fav);
+                      if (fav.icon == (Icons.favorite_border)){
+                        favPlaylist(widget.me, widget.playlist.id);
+                      }
+                      else {
+                        unFavSong(widget.me, widget.playlist.id);
+                      }
+                    }
+                ),
+                PopupMenuButton<String>(
+                  onSelected: choiceAction,
+                  itemBuilder: (BuildContext context){
+                    return Options.choicesPl.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            enabled: true,
+            subtitle: new Text(hayAutor ? _autor : ''),
+            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+          );
+        }
+    );
+  }
+
+  BoxDecoration _myBoxDecoration(){
+    return BoxDecoration(
+        border: Border.all(
+          color: Colors.cyan,
+          width: 1.5,),
+        borderRadius: BorderRadius.all(Radius.circular(5))
+    );
+  }
+
+  void choiceAction(String choice) {
+
+    if (choice == Options.p2){
+      print ("Ver Playlist");
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PlaylistScreen(widget.playlist,widget.me)));
+      // Push a la vista de la playlist
+    }
+  }
+
+}
+
+
+/*---------------------------------------------------------------------------------------*/
+/*ALBUM ITEMS */
+/*---------------------------------------------------------------------------------------*/
+class AlbumItem extends StatefulWidget {
+  final Album album;
+  final String me;
+  AlbumItem( this.album, this.me);
+
+  @override
+  AlbumItemState createState() => AlbumItemState();
+}
+
+class AlbumItemState extends State<AlbumItem> {
+
+  Icon fav = Icon(Icons.favorite_border) ;
+  Future _future2;
+  var jsonData;
+  String _autor;
+  var _creador;
+  int id;
+  bool hayAutor = false;
+
+  isFav(String me, int albumID) async {
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavAlbum/$me/$albumID');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    print ("isFAV:" + response2.statusCode.toString());
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if(ret == 0){
+        setState(() {
+          fav = Icon(Icons.favorite);
+        });
+      }
+    }
+  }
+
+  favAlbum(String me, int albumId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favAlbum/$me/$albumId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite);
+      });
+    }
+  }
+
+  unFavSong(String me, int albumId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/eliminateFavAlbum/$me/$albumId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite_border);
+      });
+    }
+  }
+
+
+  Future<String> getAlbumAutor() async{
+
+    id = widget.album.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/album/get/$id');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print('Response status get songs autor: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('Get album done');
+      setState(() {
+        jsonData = json.decode(response.body);
+
+        _creador = jsonData['autor'];
+        print(_creador);
+        print('_____23432____');
+        _autor = _creador['username'];
+        print(_autor);
+        print('_____23432____');
+        hayAutor = true;
+
+      });
+
+    }
+    return _autor;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    isFav(widget.me, widget.album.id);
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    _future2 = getAlbumAutor();
+    return FutureBuilder<dynamic>(
+        future: _future2,
+        builder: (context, snapshot) {
+          return new ListTile(
+            leading: Container(
+                height: 50,
+                width: 50,
+                decoration: _myBoxDecoration(),
+                child: (widget.album.pathImg != null) ? FittedBox(fit: BoxFit.fill,
+                    child: Image.network(widget.album.pathImg))
+                    : Image.asset('images/appleMusic.png')
+            ),
+            title: new Text(widget.album.nombre),
+            trailing:
+            Wrap(
+              children: <Widget>[
+                IconButton(
+                    icon: fav,
+                    color: Colors.red,
+                    onPressed: () {
+                      print(fav);
+                      if (fav.icon == (Icons.favorite_border)){
+                        favAlbum(widget.me, widget.album.id);
+                      }
+                      else {
+                        unFavSong(widget.me, widget.album.id);
+                      }
+                    }
+                ),
+                PopupMenuButton<String>(
+                  onSelected: choiceAction,
+                  itemBuilder: (BuildContext context){
+                    return Options.choicesAl.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            enabled: true,
+            subtitle: new Text(hayAutor ? _autor : ''),
+            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+          );
+        }
+    );
+  }
+
+  BoxDecoration _myBoxDecoration(){
+    return BoxDecoration(
+        border: Border.all(
+          color: Colors.cyan,
+          width: 1.5,),
+        borderRadius: BorderRadius.all(Radius.circular(5))
+    );
+  }
+
+  void choiceAction(String choice) {
+
+    if (choice == Options.p4){
+      print ("Ver Album");
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumScreen(widget.album,widget.me)));
+      // Push a la vista de la playlist
+    }
+  }
+
+}
+
+
   class Options {
     static const String p1 = "Añadir a Playlist";
-    static const String p2 = "Ver álbum";
+    static const String p2 = "Ver Playlist";
     static const String p3 = "Añadir a cola de reproducción";
+    static const String p4 = "Ver Álbum";
 
-    static const List<String> choices = <String> [p1,p2,p3];
-
+    static const List<String> choices = <String> [p1,p3];
+    static const List<String> choicesPl = <String> [p2];
+    static const List<String> choicesAl = <String> [p4];
   }
