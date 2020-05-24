@@ -20,7 +20,8 @@ import 'package:path/path.dart' as Path;
 class PlaylistScreen extends StatefulWidget {
   final Playlist playlist;
   final String email;
-  const PlaylistScreen(this.playlist, this.email);
+  final AudioControl audio;
+  const PlaylistScreen(this.playlist, this.email, this.audio);
 
   @override
   _PlaylistScreenState createState() => _PlaylistScreenState();
@@ -169,7 +170,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                         padding: new EdgeInsets.symmetric(vertical: 8.0),
                                         children: songList.map(
                                                 (contact) => new SongItem(
-                                                contact, widget.email)).toList()
+                                                contact, widget.email, widget.audio)).toList()
                                     ),
                                   ),
                                 ]

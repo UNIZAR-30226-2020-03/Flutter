@@ -10,6 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="04757e18-c0d9-4df6-a205-5a1e370895c8" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/uploadPodcast.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.lock" afterDir="false" />
@@ -17,7 +18,13 @@
       <change beforePath="$PROJECT_DIR$/android/.gradle/5.6.2/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/5.6.2/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/AudioControl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/AudioControl.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/Profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/Profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/albumScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/albumScreen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/favScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/favScreen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/song.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/song.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/pantallas.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pantallas.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/playlistScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/playlistScreen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/searchScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/searchScreen.dart" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

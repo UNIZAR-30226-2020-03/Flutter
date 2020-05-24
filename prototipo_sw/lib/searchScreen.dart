@@ -137,7 +137,7 @@ class _SearchListState extends State<SearchList>
 
 
   Future<List<Album>> getAllAlbums() async{
-    List<Album> _list;
+    var _list;
     var uri = Uri.https('upbeatproyect.herokuapp.com','/album/allAlbums');
     final response = await http.get(
       uri,
@@ -186,7 +186,7 @@ class _SearchListState extends State<SearchList>
   }
 
   Future<List<Usuario>> getAllUsers() async{
-    List<Usuario> _list;
+    var _list;
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/allClientes');
     final response = await http.get(
       uri,
@@ -393,7 +393,7 @@ class _SearchListState extends State<SearchList>
 
   List<SongItem> _buildSongSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new SongItem(contact, widget._email))
+      return _list.map((contact) => new SongItem(contact, widget._email, widget.audio))
           .toList();
     }
     else {
@@ -404,7 +404,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new SongItem(contact, widget._email))
+      return _searchList.map((contact) => new SongItem(contact, widget._email, widget.audio))
           .toList();
     }
   }
@@ -422,7 +422,7 @@ class _SearchListState extends State<SearchList>
 
   List<PlaylistItem> _buildPlaylistSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new PlaylistItem(contact, widget._email))
+      return _list.map((contact) => new PlaylistItem(contact, widget._email, widget.audio))
           .toList();
     }
     else {
@@ -433,7 +433,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new PlaylistItem(contact, widget._email))
+      return _searchList.map((contact) => new PlaylistItem(contact, widget._email, widget.audio))
           .toList();
     }
   }
@@ -451,7 +451,7 @@ class _SearchListState extends State<SearchList>
 
   List<AlbumItem> _buildAlbumSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new AlbumItem(contact, widget._email))
+      return _list.map((contact) => new AlbumItem(contact, widget._email, widget.audio))
           .toList();
     }
     else {
@@ -462,7 +462,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new AlbumItem(contact, widget._email))
+      return _searchList.map((contact) => new AlbumItem(contact, widget._email, widget.audio))
           .toList();
     }
   }
@@ -473,7 +473,7 @@ class _SearchListState extends State<SearchList>
 /*---------------------------------------------------------------------------------------*/
 /*USUARIO ITEMS */
 class UsuarioItem extends StatefulWidget {
-  final Usuario user;
+   var user;
   final String me;
   UsuarioItem( this.user, this.me,);
 
@@ -580,9 +580,10 @@ class UsuarioItemState extends State<UsuarioItem> {
 
 
 class SongItem extends StatefulWidget {
-  final Song song;
+  var song;
+  final AudioControl audio;
   final String me;
-  SongItem( this.song, this.me);
+  SongItem( this.song, this.me, this.audio);
 
   @override
   SongItemState createState() => SongItemState();
@@ -597,6 +598,9 @@ class SongItemState extends State<SongItem> {
   var _creador;
   int id;
   bool hayAutor = false;
+
+
+
 
   isFav(String me, int songId) async {
     var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavSong/$me/$songId');
@@ -681,6 +685,7 @@ class SongItemState extends State<SongItem> {
   }
   @override
   Widget build(BuildContext context) {
+
     _future2 = getSongAutor();
     return FutureBuilder<dynamic>(
       future: _future2,
@@ -750,6 +755,11 @@ class SongItemState extends State<SongItem> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => UserPlaylists(widget.me,songId)));
       // Push a la vista de playlists del usuario
     }
+    if (choice == Options.p3){
+
+      widget.audio.addEnd(widget.song.id);
+      // Push a la vista de playlists del usuario
+    }
   }
 
 }
@@ -758,9 +768,10 @@ class SongItemState extends State<SongItem> {
 /*PLAYLIST ITEMS */
 /*---------------------------------------------------------------------------------------*/
 class PlaylistItem extends StatefulWidget {
-  final Playlist playlist;
+  var playlist;
   final String me;
-  PlaylistItem( this.playlist, this.me);
+  var audio;
+  PlaylistItem( this.playlist, this.me, this.audio);
 
   @override
   PlaylistItemState createState() => PlaylistItemState();
@@ -924,7 +935,7 @@ class PlaylistItemState extends State<PlaylistItem> {
 
     if (choice == Options.p2){
       print ("Ver Playlist");
-      Navigator.push(context, MaterialPageRoute(builder: (context) => PlaylistScreen(widget.playlist,widget.me)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PlaylistScreen(widget.playlist,widget.me, widget.audio)));
       // Push a la vista de la playlist
     }
   }
@@ -936,9 +947,10 @@ class PlaylistItemState extends State<PlaylistItem> {
 /*ALBUM ITEMS */
 /*---------------------------------------------------------------------------------------*/
 class AlbumItem extends StatefulWidget {
-  final Album album;
+  var album;
   final String me;
-  AlbumItem( this.album, this.me);
+  var audio;
+  AlbumItem( this.album, this.me, this.audio);
 
   @override
   AlbumItemState createState() => AlbumItemState();
@@ -1102,7 +1114,7 @@ class AlbumItemState extends State<AlbumItem> {
 
     if (choice == Options.p4){
       print ("Ver Album");
-      Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumScreen(widget.album,widget.me)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumScreen(widget.album,widget.me, widget.audio)));
       // Push a la vista de la playlist
     }
   }

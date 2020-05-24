@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/uploadSong.dart';
 import 'AudioControl.dart';
+import 'uploadPodcast.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -340,13 +341,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                      if (_usernameArtist != null){
 
-                       return FloatingActionButton(
-                           child: Icon(Icons.file_upload),
-                           onPressed: () {
-                             Navigator.push(context,
-                                 MaterialPageRoute(
-                                 builder: (context) => UploadSong(widget._email)));
-                           }
+                       return Row(
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         children: <Widget>[
+                           Column(
+                             children: <Widget>[
+                               FloatingActionButton(
+                                   heroTag: "btn1",
+                                   child: Icon(Icons.file_upload),
+                                   onPressed: () {
+                                     Navigator.push(context,
+                                         MaterialPageRoute(
+                                         builder: (context) => UploadSong(widget._email)));
+                                   }
+                               ),
+                               Container(
+                                 height: 3,
+                               ),
+                               Text('Song',
+                                 style: TextStyle(
+                                   //color: Colors.cyan,
+                                     color: Colors.cyan
+                                 ),
+                               )
+                             ],
+                           ),
+                           Container(
+                             width: 40,
+                           ),
+                           Column(
+                             children: <Widget>[
+                               FloatingActionButton(
+                                   heroTag: "btn2",
+                                   child: Icon(Icons.file_upload),
+                                   onPressed: () {
+                                     Navigator.push(context,
+                                         MaterialPageRoute(
+                                             builder: (context) => UploadPodcast(widget._email)));
+                                   }
+                               ),
+                               Container(
+                                 height: 3,
+                               ),
+                               Text('Podcast',
+                                 style: TextStyle(
+                                   //color: Colors.cyan,
+                                     color: Colors.cyan
+                                 ),
+                               )
+                             ],
+                           ),
+                         ],
                        );
                      } else {
                        return Text('');
