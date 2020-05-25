@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/crear_playlist.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:prototipo_sw/model/playlist.dart';
 
@@ -49,7 +50,65 @@ class _UserPlaylistsState extends State<UserPlaylists> {
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
           else _list = snapshot.data;
           return new Scaffold(
-            body: new ListView.builder(
+            body: (_list.length == 0)
+            ? Column(
+              children: <Widget>[
+                Container(height:30),
+                Container(height:150.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Text("No has creado todavía ninguna playlist",
+                        style:TextStyle(
+                            fontSize: 20.0,
+                            fontStyle: FontStyle.italic,
+                            fontFamily: 'Montserrat'
+                        ),
+                      ),
+                    )
+                ),
+                Container(height:450,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: Text("Crea una nueva aquí",
+                              style:TextStyle(
+                                  fontSize: 20.0,
+                                  fontStyle: FontStyle.italic,
+                                  fontFamily: 'Montserrat'
+                              ),
+                            ),
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    FloatingActionButton(
+                        onPressed: () async{
+                          Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (context) => CrearPlaylist(widget.user))).then((value) {
+                            setState(() {
+                              _future = getPlaylistsFromUser();
+                            });
+                          });
+                        },
+                        child: Icon(
+                            Icons.add, color: Colors.white
+                        )
+                    ),
+                  ],
+                )
+              ],
+              )
+            : new ListView.builder(
               itemCount: _list.length,
               itemBuilder: (context, index) {
                 final item = _list[index];
@@ -59,7 +118,9 @@ class _UserPlaylistsState extends State<UserPlaylists> {
                       height: 50,
                       width: 50,
                       decoration: _myBoxDecoration(),
-                      child: Image.asset('images/appleMusic.png')
+                      child: (item.pathImg != null)
+                          ? Image.network(item.pathImg)
+                          : Image.asset('images/appleMusic.png'),
                     ),
                     title: Text(item.nombre),
                     onTap: () { //  <-- onTap

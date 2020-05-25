@@ -90,9 +90,35 @@ class SongsState extends State<Songs>{
   String nomPlaylist = "";
   String nomAlbum = "";
 
+  Future deletePlaylist(Playlist _playlist) async {
+    int _playlistId = _playlist.id;
+    var response = await http.delete("https://upbeatproyect.herokuapp.com/playlist/delete/$_playlistId",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+    );
+    print("DELETE PL:" + response.statusCode.toString());
+    if (response.statusCode == 200) {
+      setState(() {
+        Navigator.pop(context);
+      });
+    }
+  }
 
-
-
+  Future deleteAlbum(Album _album) async {
+    int _albumId = _album.id;
+    var response = await http.delete("https://upbeatproyect.herokuapp.com/album/delete/$_albumId",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print("DELETE AL:" + response.statusCode.toString());
+    if (response.statusCode == 200) {
+      setState(() {
+        Navigator.pop(context);
+      });
+    }
+  }
 
 
   Future<String> getSongs() async{
@@ -212,7 +238,6 @@ class SongsState extends State<Songs>{
 
 
     return Container(
-      color: Colors.white,
       child: Column (
         children: <Widget>[
           /*FutureBuilder(
@@ -316,7 +341,7 @@ class SongsState extends State<Songs>{
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
         else _playlists = snapshot.data;
         return Container(
-          color: Colors.white,
+
           child: Column(
             children: <Widget>[
               Container(
@@ -419,7 +444,6 @@ class SongsState extends State<Songs>{
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
           else _albums = snapshot.data;
           return Container(
-            color: Colors.white,
             child: Column(
                 children: <Widget>[
                   Container(
@@ -612,9 +636,6 @@ class SongsState extends State<Songs>{
         return ButtonTheme(
           minWidth: 40,
             child: FlatButton(
-    
-              color: Colors.white,
-              disabledColor: Colors.white,
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onPressed: (){
@@ -702,6 +723,44 @@ class SongsState extends State<Songs>{
       }
     
     Widget _buildRowPlaylist(Playlist _playlist){
+      createMenu(BuildContext context){
+        return showDialog(context: context, builder: (context){
+          return AlertDialog(
+            title: Text("UpBeat"),
+            content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text("¿Desea eliminar esta playlist?"),
+                  ],
+                )
+            ),
+            actions: <Widget>[
+              ButtonBar(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  new RaisedButton(child: Text("NO"),
+                      onPressed:() {
+                        setState(() {
+                          Navigator.of(context).pop();
+                        });
+                      }
+                  ),
+                  new RaisedButton(child: Text("Yes"),
+                      onPressed: () {
+                        print(_playlist.id);
+                        setState(() {
+                          deletePlaylist(_playlist);
+                        });
+                      }
+                  )
+                ],
+              )
+            ],
+          );
+        });
+      }
+
+
       return new GestureDetector(
         onTap: () {
           setState(() {
@@ -712,6 +771,7 @@ class SongsState extends State<Songs>{
             print(playlist.id);
           });
         },
+        onLongPress: () => createMenu(context),
         child: Container(
           child: Row(
             children: <Widget>[
@@ -723,7 +783,10 @@ class SongsState extends State<Songs>{
                     height: 120,
                     decoration: _playlistDecoration(),
                     child: (_playlist.pathImg != null)
-                        ? Image.network(_playlist.pathImg)
+                      ? FittedBox(
+                          fit: BoxFit.fill,
+                          child: Image.network(_playlist.pathImg)
+                      )
                         : Image.asset('images/appleMusic.png'),
                   ),
                   Container(height: 10,),
@@ -792,6 +855,42 @@ class SongsState extends State<Songs>{
     
     
       Widget _buildRowAlbum(Album _album){
+        createMenu(BuildContext context){
+          return showDialog(context: context, builder: (context){
+            return AlertDialog(
+              title: Text("UpBeat"),
+              content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text("¿Desea eliminar esta playlist?"),
+                    ],
+                  )
+              ),
+              actions: <Widget>[
+                ButtonBar(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    new RaisedButton(child: Text("NO"),
+                        onPressed:() {
+                          setState(() {
+                            Navigator.of(context).pop();
+                          });
+                        }
+                    ),
+                    new RaisedButton(child: Text("Yes"),
+                        onPressed: () {
+                          print(_album.id);
+                          setState(() {
+                            deleteAlbum(_album);
+                          });
+                        }
+                    )
+                  ],
+                )
+              ],
+            );
+          });
+        }
 
         return new GestureDetector(
           onTap: () {
@@ -803,6 +902,7 @@ class SongsState extends State<Songs>{
               print(album.id);
             });
           },
+          onLongPress: () => createMenu(context),
           child: Container(
             child: Row(
               children: <Widget>[
@@ -814,7 +914,7 @@ class SongsState extends State<Songs>{
                       height: 120,
                       decoration: _albumDecoration(),
                       child: (_album.pathImg != null)
-                        ? Image.network(_album.pathImg)
+                        ? FittedBox(fit: BoxFit.fill, child: Image.network(_album.pathImg))
                         : Image.asset('images/appleMusic.png'),
                     ),
                     Container(height: 10,),
@@ -1016,7 +1116,7 @@ class SongsState extends State<Songs>{
 
 
 
-  Widget showPlaylist(Playlist playlist) {
+  Widget showPlaylist(Playlist _playlist) {
  
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -1028,27 +1128,19 @@ class SongsState extends State<Songs>{
             if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
             else _songlist = snapshot.data;
             return new Scaffold(
-              body: new ListView.builder(
-                itemCount: _songlist.length,
-                itemBuilder: (context, index) {
-                 var item = _songlist[index];
-                  return Card(
-                    child: ListTile(
-                      leading:Container(
-                        height: 50,
-                        width: 50,
-                        decoration: _myBoxDecoration(),
-                        child: Image.network(item.pathImg),
-                      ),
-                      title: Text(item.nombre),
-                      onTap: () { //
-
-                          audio.reproducir(item.pathMp3, item.nombre, item.pathImg, item.id);
-                        // <-- onTap
-                      }
-                    )
-                  );
-                }
+              body: (_songlist.length == 0)
+                  ? Text("La playlist no tiene canciones",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontStyle: FontStyle.italic,
+                        fontFamily: 'Montserrat'
+                    ),
+                  )
+                  : new ListView(
+                  padding: new EdgeInsets.symmetric(vertical: 8.0),
+                  children: _songlist.map(
+                          (contact) => new SongItemPlaylist(_playlist,
+                          contact, widget.user)).toList()
               ),
             );
           }
@@ -1057,7 +1149,7 @@ class SongsState extends State<Songs>{
     );
   }
 
-  Widget showAlbum(Album album) {
+  Widget showAlbum(Album _album) {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -1069,27 +1161,11 @@ class SongsState extends State<Songs>{
               if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
               else _songlist = snapshot.data;
               return new Scaffold(
-                body: new ListView.builder(
-                    itemCount: _songlist.length,
-                    itemBuilder: (context, index) {
-                      var item = _songlist[index];
-                      return Card(
-                          child: ListTile(
-                              leading:Container(
-                                height: 50,
-                                width: 50,
-                                decoration: _myBoxDecoration(),
-                                child: Image.network(item.pathImg),
-                              ),
-                              title: Text(item.nombre),
-                              onTap: () { //
-
-                                audio.reproducir(item.pathMp3, item.nombre, item.pathImg, item.id);
-                                // <-- onTap
-                              }
-                          )
-                      );
-                    }
+                body: new ListView(
+                    padding: new EdgeInsets.symmetric(vertical: 8.0),
+                    children: _songlist.map(
+                            (contact) => new SongItemAlbum(_album,
+                            contact, widget.user)).toList()
                 ),
               );
             }
@@ -1097,4 +1173,390 @@ class SongsState extends State<Songs>{
       ),
     );
   }
+}
+class SongItemPlaylist extends StatefulWidget {
+  final Playlist playlist;
+  final Song song;
+  final String me;
+  SongItemPlaylist( this.playlist, this.song, this.me);
+
+  @override
+  SongItemPlaylistState createState() => SongItemPlaylistState();
+}
+
+class SongItemPlaylistState extends State<SongItemPlaylist> {
+
+  Icon fav = Icon(Icons.favorite_border) ;
+  Future _future2;
+  var jsonData;
+  String _autor;
+  var _creador;
+  int id;
+  bool hayAutor = false;
+
+  isFav(String me, int songId) async {
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavSong/$me/$songId');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    print ("isFAV:" + response2.statusCode.toString());
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if(ret == 0){
+        setState(() {
+          fav = Icon(Icons.favorite);
+        });
+      }
+    }
+  }
+
+  favSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favSong/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite);
+      });
+    }
+  }
+
+  unFavSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/eliminateFavSong/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite_border);
+      });
+    }
+  }
+
+  Future takeOutSong(int playlistId) async{
+    int songId= widget.song.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/playlist/takeOut/$playlistId/$songId');
+    final response = await http.put(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Added Song Response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      setState(() {
+      });
+    }
+  }
+
+
+
+  Future<String> getSongAutor() async{
+    List<Song> _list;
+    id = widget.song.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/getbyId/$id');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print('Response status get songs autor: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('get song done');
+      setState(() {
+        jsonData = json.decode(response.body);
+
+        _creador = jsonData['creador'];
+        print(_creador);
+        print('_____23432____');
+        _autor = _creador['username'];
+        print(_autor);
+        print('_____23432____');
+        hayAutor = true;
+
+      });
+
+    }
+    return _autor;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    isFav(widget.me, widget.song.id);
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    _future2 = getSongAutor();
+    return FutureBuilder<dynamic>(
+        future: _future2,
+        builder: (context, snapshot) {
+          return new ListTile(
+            leading: Container(
+                height: 50,
+                width: 50,
+                decoration: _myBoxDecoration(),
+                child: (widget.song.pathImg != null) ? FittedBox(fit: BoxFit.fill,
+                    child: Image.network(widget.song.pathImg))
+                    : Image.asset('images/appleMusic.png')
+            ),
+            title: new Text(widget.song.nombre),
+            trailing:
+            Wrap(
+              children: <Widget>[
+                IconButton(
+                    icon: fav,
+                    color: Colors.red,
+                    onPressed: () {
+                      print(fav);
+                      if (fav.icon == (Icons.favorite_border)){
+                        favSong(widget.me, widget.song.id);
+                      }
+                      else {
+                        unFavSong(widget.me, widget.song.id);
+                      }
+                    }
+                ),
+                PopupMenuButton<String>(
+                  onSelected: choiceAction,
+                  itemBuilder: (BuildContext context){
+                    return Options.choicesSPl.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            enabled: true,
+            subtitle: new Text(hayAutor ? _autor : ''),
+            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+          );
+        }
+    );
+  }
+
+  BoxDecoration _myBoxDecoration(){
+    return BoxDecoration(
+        border: Border.all(
+          color: Colors.cyan,
+          width: 1.5,),
+        borderRadius: BorderRadius.all(Radius.circular(5))
+    );
+  }
+
+  void choiceAction(String choice) {
+
+    if (choice == Options.p5){
+      int playlistId = widget.playlist.id;
+      print ("Quitar de la Playlist");
+      takeOutSong(playlistId);
+
+      // Push a la vista de playlists del usuario
+    }
+  }
+
+}
+
+class SongItemAlbum extends StatefulWidget {
+  final Album album;
+  final Song song;
+  final String me;
+  SongItemAlbum( this.album, this.song, this.me);
+
+  @override
+  SongItemPlaylistState createState() => SongItemPlaylistState();
+}
+
+class SongItemAlbumState extends State<SongItemAlbum> {
+
+  Icon fav = Icon(Icons.favorite_border) ;
+  Future _future2;
+  var jsonData;
+  String _autor;
+  var _creador;
+  int id;
+  bool hayAutor = false;
+
+  isFav(String me, int songId) async {
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavSong/$me/$songId');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    print ("isFAV:" + response2.statusCode.toString());
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if(ret == 0){
+        setState(() {
+          fav = Icon(Icons.favorite);
+        });
+      }
+    }
+  }
+
+  favSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favSong/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite);
+      });
+    }
+  }
+
+  unFavSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/eliminateFavSong/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite_border);
+      });
+    }
+  }
+
+  Future takeOutSong(int albumId) async{
+    int songId= widget.song.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/album/takeOut/$albumId/$songId');
+    final response = await http.put(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Added Song Response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      setState(() {
+      });
+    }
+  }
+
+
+
+  Future<String> getSongAutor() async{
+    List<Song> _list;
+    id = widget.song.id;
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/getbyId/$id');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;',
+      },
+    );
+    print('Response status get songs autor: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      print('get song done');
+      setState(() {
+        jsonData = json.decode(response.body);
+
+        _creador = jsonData['creador'];
+        print(_creador);
+        print('_____23432____');
+        _autor = _creador['username'];
+        print(_autor);
+        print('_____23432____');
+        hayAutor = true;
+
+      });
+
+    }
+    return _autor;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    isFav(widget.me, widget.song.id);
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    _future2 = getSongAutor();
+    return FutureBuilder<dynamic>(
+        future: _future2,
+        builder: (context, snapshot) {
+          return new ListTile(
+            leading: Container(
+                height: 50,
+                width: 50,
+                decoration: _myBoxDecoration(),
+                child: (widget.song.pathImg != null) ? FittedBox(fit: BoxFit.fill,
+                    child: Image.network(widget.song.pathImg))
+                    : Image.asset('images/appleMusic.png')
+            ),
+            title: new Text(widget.song.nombre),
+            trailing:
+            Wrap(
+              children: <Widget>[
+                IconButton(
+                    icon: fav,
+                    color: Colors.red,
+                    onPressed: () {
+                      print(fav);
+                      if (fav.icon == (Icons.favorite_border)){
+                        favSong(widget.me, widget.song.id);
+                      }
+                      else {
+                        unFavSong(widget.me, widget.song.id);
+                      }
+                    }
+                ),
+                PopupMenuButton<String>(
+                  onSelected: choiceAction,
+                  itemBuilder: (BuildContext context){
+                    return Options.choicesSAl.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            enabled: true,
+            subtitle: new Text(hayAutor ? _autor : ''),
+            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+          );
+        }
+    );
+  }
+
+  BoxDecoration _myBoxDecoration(){
+    return BoxDecoration(
+        border: Border.all(
+          color: Colors.cyan,
+          width: 1.5,),
+        borderRadius: BorderRadius.all(Radius.circular(5))
+    );
+  }
+
+  void choiceAction(String choice) {
+
+    if (choice == Options.p6){
+      int albumId = widget.album.id;
+      takeOutSong(albumId);
+
+      // Push a la vista de playlists del usuario
+    }
+  }
+
 }

@@ -1,8 +1,14 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:prototipo_sw/home.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
+
+import 'package:path/path.dart' as Path;
 
 class CrearPlaylist extends StatefulWidget {
 
@@ -24,6 +30,10 @@ class CrearPlaylistState extends State<CrearPlaylist> {
   // Nota: Esto es un `GlobalKey<FormState>`, no un GlobalKey<MyCustomFormState>!
    final _formKey = GlobalKey<FormState>();
 
+   File image;
+   String _path_image;
+   String _uploadedImgURL;
+
   var jsonData;
   String _description, _name;
 
@@ -31,7 +41,8 @@ class CrearPlaylistState extends State<CrearPlaylist> {
     String correo = widget.user;
     Map data = {
         'nombre': _name,
-        'descripcion' : _description
+        'descripcion' : _description,
+        'pathImg' : _uploadedImgURL
     };
     var response = await http.post("https://upbeatproyect.herokuapp.com/playlist/save",  
       headers: <String, String>{
@@ -58,6 +69,43 @@ class CrearPlaylistState extends State<CrearPlaylist> {
       }
     }
   }
+
+
+   Future uploadImg() async {
+     String _basenamePath = Path.basename(_path_image);
+
+     StorageReference storageReference = FirebaseStorage.instance
+         .ref()
+         .child(_basenamePath);
+     StorageUploadTask uploadTask = storageReference.putFile(image);
+     await uploadTask.onComplete;
+     print('Image Uploaded');
+     storageReference.getDownloadURL().then((fileURL) {
+       print('_______');
+       print( "FIREBASE :" + fileURL);
+       setState(() {
+         _uploadedImgURL = fileURL;
+         createNew();
+       });
+     });
+
+
+   }
+
+   void _openFileExplorer2() async {
+     image = await FilePicker.getFile(
+       type: FileType.image,
+     );
+
+     print('--------------------------------------');
+     print(image.path);
+
+
+     setState(() {
+       _path_image=image.path;
+       print(_path_image);
+     });
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +143,17 @@ class CrearPlaylistState extends State<CrearPlaylist> {
               maxLines: 7,
               onChanged: (val) => _description = val,
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 33.0, top: 50.0, bottom: 20.0),
+              child: Column(
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: () => _openFileExplorer2(),
+                    child: Text("Escoger imagen"),
+                  ),
+                ],
+              ),
+            ),
             Container(height: 10,),
             Center(
               child: Container(
@@ -118,7 +177,7 @@ class CrearPlaylistState extends State<CrearPlaylist> {
                     // devolverá true si el formulario es válido, o falso si
                     // el formulario no es válido.
                     if (_formKey.currentState.validate()) {
-                      createNew();
+                      uploadImg();
                     }
                     else if (!_formKey.currentState.validate()) {
                       Scaffold.of(context).

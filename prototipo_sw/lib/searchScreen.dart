@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:prototipo_sw/Profile_only_read.dart';
 import 'package:prototipo_sw/albumScreen.dart';
 import 'package:prototipo_sw/model/album.dart';
 import 'package:prototipo_sw/model/playlist.dart';
@@ -442,7 +443,7 @@ class _SearchListState extends State<SearchList>
 /*---------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------*/
-/* BÚSQUEDA DE CANCIONES */
+/* BÚSQUEDA DE ALBUMES */
 
   List<AlbumItem> _buildAlbumList() {
     //AQUI SE AÑADIRAN LAS CANCIONES MÁS STREMEADAS Y RECOMENDACIONES
@@ -573,7 +574,7 @@ class UsuarioItemState extends State<UsuarioItem> {
           else if (follow.icon == Icons.check) unfollowUser(widget.me , widget.user.email);
         } 
       ),
-      onTap: () => Navigator.of(context).pushNamed('profileOnlyR', arguments: widget.user.email)
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileOnlyRScreen(widget.me,widget.user.email)))
     );
   }
 }
@@ -1115,8 +1116,12 @@ class AlbumItemState extends State<AlbumItem> {
     static const String p2 = "Ver Playlist";
     static const String p3 = "Añadir a cola de reproducción";
     static const String p4 = "Ver Álbum";
+    static const String p5 = "Quitar de la Playlist";
+    static const String p6 = "Quitar del Album";
 
     static const List<String> choices = <String> [p1,p3];
     static const List<String> choicesPl = <String> [p2];
     static const List<String> choicesAl = <String> [p4];
+    static const List<String> choicesSPl = <String> [p3,p5];
+    static const List<String> choicesSAl = <String> [p6];
   }

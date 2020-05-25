@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:prototipo_sw/Profile_only_read.dart';
 import 'package:prototipo_sw/albumScreen.dart';
 import 'package:prototipo_sw/model/album.dart';
 import 'package:prototipo_sw/model/playlist.dart';
@@ -193,7 +194,28 @@ class _FavScreenState extends State<FavScreen> {
                   if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                   else songList = snapshot.data;
                   return Container(
-                    child: Stack(
+                    child: (songList.length == 0)
+                        ? Container(
+                        height:150.0,
+                        child: Wrap(
+                          children: <Widget>[
+                            Text("No tienes canciones favoritas...",
+                              style:TextStyle(
+                                  fontSize: 20.0,
+                                  fontStyle: FontStyle.italic,
+                                  fontFamily: 'Montserrat'
+                              ),
+                            ),
+                            Text("Explora y añádelas a tu colección",
+                              style:TextStyle(
+                                  fontSize: 20.0,
+                                  fontStyle: FontStyle.normal,
+                                  fontFamily: 'Montserrat'
+                              ),
+                            ),
+                          ],
+                        )
+                    ) : Stack(
                         children: <Widget>[
                           Container(
                             height: 300,
@@ -218,7 +240,6 @@ class _FavScreenState extends State<FavScreen> {
                 if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                 else _playlists = snapshot.data;
                 return Container(
-                  color: Colors.white,
                   child: Column(
                     children: <Widget>[
                       Row(
@@ -235,8 +256,31 @@ class _FavScreenState extends State<FavScreen> {
                       Container(height: 20,),
                       Row(
                         children: <Widget>[
-                          Expanded(
-                            child: Container(
+                          Expanded(child: (_playlists.length == 0)
+                              ? Container(
+                              height:150.0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Wrap(
+                                  children: <Widget>[
+                                    Text("¿Todavía no tienes playlists favoritas?",
+                                      style:TextStyle(
+                                          fontSize: 20.0,
+                                          fontStyle: FontStyle.italic,
+                                          fontFamily: 'Montserrat'
+                                      ),
+                                    ),
+                                    Text("Explora y añádelos a tu colección",
+                                      style:TextStyle(
+                                        fontSize: 20.0,
+                                        fontStyle: FontStyle.italic,
+                                        fontFamily: 'Montserrat'
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                          ) : Container(
                               height: 150.0,
                               child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
@@ -262,12 +306,11 @@ class _FavScreenState extends State<FavScreen> {
                   if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                   else _albums = snapshot.data;
                   return Container(
-                    color: Colors.white,
                     child: Column(
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              Text('     ÁLBUMES FAVORITAS',
+                              Text('     ÁLBUMS FAVORITOS',
                                 style: TextStyle(
                                   //color: Colors.cyan,
                                     fontSize: 26.0,
@@ -280,9 +323,33 @@ class _FavScreenState extends State<FavScreen> {
                           Row(
                             children: <Widget>[
                               Expanded(
-                                child: Container(
-                                  height: 150.0,
-                                  child: ListView.builder(
+                                child: (_albums.length == 0)
+                                ? Container(
+                                    height:150.0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Wrap(
+                                        children: <Widget>[
+                                          Text("¿Todavía no tienes álbumes favoritos?",
+                                            style:TextStyle(
+                                              fontSize: 20.0,
+                                              fontStyle: FontStyle.italic,
+                                              fontFamily: 'Montserrat'
+                                            ),
+                                          ),
+                                          Text("Explora y añádelos a tu colección",
+                                            style:TextStyle(
+                                              fontSize: 20.0,
+                                              fontStyle: FontStyle.italic,
+                                              fontFamily: 'Montserrat'
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ) : Container(
+                                    height: 150.0,
+                                    child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
                                       itemCount: _albums.length,
                                       itemBuilder: (context, i) {
@@ -417,6 +484,16 @@ class _FavScreenState extends State<FavScreen> {
           Column(
             children: <Widget>[
               Container(
+                child: GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileOnlyRScreen(widget.email,user.email))).then((value) {
+                    setState(() {
+                      _future = getFollowingList(widget.email);
+                      _futurels = getSongList(widget.email);
+                      _futurePl = getPlaylistList(widget.email);
+                      _futureAl = getAlbumList(widget.email);
+                    });
+                  })
+                ),
                 width: 55,
                 height: 55,
                 decoration: BoxDecoration(
