@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:prototipo_sw/AudioControl.dart';
 import 'package:prototipo_sw/albumScreen.dart';
 import 'package:prototipo_sw/model/album.dart';
 import 'package:prototipo_sw/model/artista.dart';
@@ -15,7 +16,8 @@ import 'model/usuario.dart';
 class ProfileOnlyRScreen extends StatefulWidget {
   final String me;
   final String email;
-  const ProfileOnlyRScreen(this.me, this.email);
+  final AudioControl audio;
+  const ProfileOnlyRScreen(this.me, this.email, this.audio);
 
   @override
   _ProfileOnlyRScreenState createState() => _ProfileOnlyRScreenState();
@@ -309,7 +311,7 @@ class _ProfileOnlyRScreenState extends State<ProfileOnlyRScreen> {
                                                           padding: new EdgeInsets.symmetric(vertical:8.0),
                                                           children: _albums.map(
                                                             (contact) => new AlbumItem(
-                                                              contact, widget.me)).toList()
+                                                              contact, widget.me,widget.audio)).toList()
                                                         ),
                                                       ),
                                                     ),
@@ -370,7 +372,7 @@ class _ProfileOnlyRScreenState extends State<ProfileOnlyRScreen> {
                                               padding: new EdgeInsets.symmetric(vertical:8.0),
                                               children: _playlist.map(
                                                       (contact) => new PlaylistItem(
-                                                      contact, widget.me)).toList()
+                                                      contact, widget.me, widget.audio)).toList()
                                           ),
                                         ),
                                       ),
@@ -411,7 +413,7 @@ class _ProfileOnlyRScreenState extends State<ProfileOnlyRScreen> {
                                         padding: new EdgeInsets.symmetric(vertical: 8.0),
                                         children: songList.map(
                                                 (contact) => new SongItem(
-                                                contact, widget.me)).toList()
+                                                contact, widget.me,widget.audio)).toList()
                                     ),
                                   ),
                                 ]
@@ -448,7 +450,7 @@ class _ProfileOnlyRScreenState extends State<ProfileOnlyRScreen> {
                                     child: ListView(
                                         padding: new EdgeInsets.symmetric(vertical: 8.0),
                                         children: albumList.map(
-                                                (contact) => new AlbumItem(contact, widget.me)).toList()
+                                                (contact) => new AlbumItem(contact, widget.me, widget.audio)).toList()
                                     ),
                                   ),
                                 ]

@@ -7,6 +7,7 @@ import 'package:prototipo_sw/model/album.dart';
 import 'package:prototipo_sw/model/playlist.dart';
 import 'package:prototipo_sw/model/song.dart';
 import 'package:prototipo_sw/model/usuario.dart';
+import 'package:prototipo_sw/pantallas.dart';
 import 'package:prototipo_sw/playlistScreen.dart';
 import 'package:prototipo_sw/user_playlists.dart';
 import 'AudioControl.dart';
@@ -365,7 +366,7 @@ class _SearchListState extends State<SearchList>
 
   List<UsuarioItem> _buildUserSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new UsuarioItem(contact, widget._email))
+      return _list.map((contact) => new UsuarioItem(widget.audio, contact, widget._email))
           .toList();
     }
     else {
@@ -376,7 +377,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new UsuarioItem(contact, widget._email))
+      return _searchList.map((contact) => new UsuarioItem(widget.audio, contact, widget._email))
           .toList();
     }
   }
@@ -474,9 +475,10 @@ class _SearchListState extends State<SearchList>
 /*---------------------------------------------------------------------------------------*/
 /*USUARIO ITEMS */
 class UsuarioItem extends StatefulWidget {
+  final AudioControl audio;
    var user;
   final String me;
-  UsuarioItem( this.user, this.me,);
+  UsuarioItem( this.audio, this.user, this.me,);
 
   @override
   UsuarioItemState createState() => UsuarioItemState();
@@ -574,7 +576,7 @@ class UsuarioItemState extends State<UsuarioItem> {
           else if (follow.icon == Icons.check) unfollowUser(widget.me , widget.user.email);
         } 
       ),
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileOnlyRScreen(widget.me,widget.user.email)))
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileOnlyRScreen(widget.me,widget.user.email,widget.audio)))
     );
   }
 }
@@ -655,6 +657,17 @@ class SongItemState extends State<SongItem> {
     print('Response2 status añadir a cola primera: ${response2.statusCode}');
 
     widget.audio.reproducir(widget.me);
+
+  }
+
+  colaCancion( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addCancionCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
 
   }
 
@@ -752,7 +765,6 @@ class SongItemState extends State<SongItem> {
             ),
           enabled: true,
           subtitle: new Text(hayAutor ? _autor : ''),
-          //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
         );
       }
     );
@@ -775,10 +787,9 @@ class SongItemState extends State<SongItem> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => UserPlaylists(widget.me,songId)));
       // Push a la vista de playlists del usuario
     }
-    if (choice == Options.p3){
-
-      widget.audio.addEnd(widget.song.id);
-      // Push a la vista de playlists del usuario
+    else if (choice == Options.p3){
+      print("Añadir a cola");
+      colaCancion(widget.song.id);
     }
   }
 
@@ -1170,6 +1181,31 @@ class AlbumItemState extends State<AlbumItem> {
     }
   }
 
+  reproducirAlbum( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirAlbum/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    widget.audio.reproducir(widget.me);
+
+  }
+  colaAlbum( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addAlbumCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola album: ${response2.statusCode}');
+
+    //audio.reproducir(widget.user);
+
+  }
+
   favAlbum(String me, int albumId) async {
 
     var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favAlbum/$me/$albumId');
@@ -1283,7 +1319,7 @@ class AlbumItemState extends State<AlbumItem> {
             ),
             enabled: true,
             subtitle: new Text(hayAutor ? _autor : ''),
-            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+            onTap: () => reproducirAlbum(widget.album.id),
           );
         }
     );
@@ -1305,6 +1341,9 @@ class AlbumItemState extends State<AlbumItem> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumScreen(widget.album,widget.me, widget.audio)));
       // Push a la vista de la playlist
     }
+    else if (choice == Options.p3){
+      colaAlbum(widget.album.id);
+    }
   }
 
 }
@@ -1321,7 +1360,7 @@ class AlbumItemState extends State<AlbumItem> {
     static const List<String> choices = <String> [p1,p3];
     static const List<String> choice = <String> [p3];
     static const List<String> choicesPl = <String> [p2];
-    static const List<String> choicesAl = <String> [p4];
+    static const List<String> choicesAl = <String> [p4,p3];
     static const List<String> choicesSPl = <String> [p3,p5];
     static const List<String> choicesSAl = <String> [p6];
   }

@@ -54,9 +54,10 @@ class SongsState extends State<Songs>{
 
   var _playlists;
   var _albums;
-  var _popSongs;
+  List<Song> _popSongs;
   var _popSongs2;
   List<Song> _songlist;
+  List<Song> _songlistAlbum;
   bool listFixPlaylist = true;
 
   bool reproduciendo = false;
@@ -140,6 +141,17 @@ class SongsState extends State<Songs>{
     audio.reproducir(widget.user);
 
   }
+
+  colaCancion( var idSong) async{
+    var usuario = widget.user;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addCancionCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+  }
   reproducirPlaylist( var idSong) async{
     var usuario = widget.user;
     var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirPlaylist/$usuario/$idSong",
@@ -183,14 +195,14 @@ class SongsState extends State<Songs>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+    print('Response2 status añadir a cola album: ${response2.statusCode}');
 
     //audio.reproducir(widget.user);
 
   }
 
   Future<List<Song>> getSongs() async{
-    var _list;
+    List<Song> _list;
     print('getSongs');
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/allSongsOrderByPopularity');
     final response = await http.get(
@@ -205,14 +217,8 @@ class SongsState extends State<Songs>{
       // then parse the JSON
       setState(() {
         jsonData = json.decode(response.body);
-        print(jsonData);
-        print('ssssssssssssssssssssssss');
         _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
       });
-      print('ssssssssssssssssssssssss');
-      //print (_list);
-      print('songs ok');
-
     }
     return _list;
   }
@@ -331,10 +337,6 @@ class SongsState extends State<Songs>{
     double tam_body = tam_pantalla_alt -10-15-34-40-200;
 
     //print(tam_body);
-
-
-
-
         return Container(
           color: Colors.white,
           child: Column (
@@ -362,7 +364,7 @@ class SongsState extends State<Songs>{
               ),
               Container(
                 height: tam_body,
-                child: FutureBuilder<List<Song>>(
+                child: FutureBuilder<Object>(
                 future: _futureP3,
                   builder: (context, snapshot2) {
                     print(snapshot2.data);
@@ -373,29 +375,21 @@ class SongsState extends State<Songs>{
                       _popSongs = snapshot2.data;
                     print('fvgbhdnsmkdjbvsgbhnj');
                     print(_popSongs);
-                    return Stack(
+                    return Column(
                       children: <Widget>[
-                        Container(
-                            height: tam_body - 40,
-                            child:
-                            Column(
-                              children: <Widget>[
-                                //_buildRow(_popSongs[i]),
-                                ListView(
-                                    scrollDirection: Axis.vertical,
-                                    shrinkWrap: true,
-                                    padding: new EdgeInsets.symmetric(
-                                        vertical: 8.0),
-                                    children: _popSongs.map<Widget>(
-                                            (contact) =>
-                                        new SongItem(
-                                            contact, widget.user, audio)).toList()
+                        Stack(
+                            children: <Widget>[
+                              Container(
+                                height: tam_body-30,
+                                child: ListView(
+                                    padding: new EdgeInsets.symmetric(vertical: 8.0),
+                                    children: _popSongs.map(
+                                            (contact) => new SongItem(
+                                            contact, widget.user, widget.audio)).toList()
                                 ),
-
-                              ],
-                            )
+                              ),
+                            ]
                         ),
-
                         //AudioBar(audio),
                         audio2,
                         //_buildSongBar(),
@@ -563,7 +557,6 @@ class SongsState extends State<Songs>{
           print(snapshot2.data);
           if (!snapshot2.hasData) return Center(child: CircularProgressIndicator());
           else _albums = snapshot2.data;
-
           return Container(
             child: Column(
                 children: <Widget>[
@@ -651,7 +644,7 @@ class SongsState extends State<Songs>{
                                     onPressed: ()  {
                                       // devolverá true si el formulario es válido, o falso si
                                       // el formulario no es válido.
-                                      reproducirAlbum(playlist.id);
+                                      reproducirAlbum(album.id);
                                     },
                                     child: Text('Reproducir', style: TextStyle(color: Colors.white)),
                                   ),
@@ -666,7 +659,7 @@ class SongsState extends State<Songs>{
                                     onPressed: ()  {
                                       // devolverá true si el formulario es válido, o falso si
                                       // el formulario no es válido.
-                                      colaAlbum(playlist.id);
+                                      colaAlbum(album.id);
                                     },
                                     child: Text('Añadir a la cola', style: TextStyle(color: Colors.white)),
                                   ),
@@ -1315,7 +1308,7 @@ class SongsState extends State<Songs>{
                   : new ListView(
                   padding: new EdgeInsets.symmetric(vertical: 8.0),
                   children: _songlist.map(
-                          (contact) => new SongItemPlaylist(_playlist,
+                          (contact) => new SongItemPlaylist(widget.audio, _playlist,
                           contact, widget.user)).toList()
               ),
             );
@@ -1335,12 +1328,12 @@ class SongsState extends State<Songs>{
             future: _futurels2,
             builder: (context, snapshot) {
               if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-              else _songlist = snapshot.data;
+              else _songlistAlbum = snapshot.data;
               return new Scaffold(
                 body: new ListView(
                     padding: new EdgeInsets.symmetric(vertical: 8.0),
-                    children: _songlist.map(
-                            (contact) => new SongItemAlbum(_album,
+                    children: _songlistAlbum.map(
+                            (contact) => new SongItemAlbum(widget.audio, _album,
                             contact, widget.user)).toList()
                 ),
               );
@@ -1351,10 +1344,11 @@ class SongsState extends State<Songs>{
   }
 }
 class SongItemPlaylist extends StatefulWidget {
+  final AudioControl audio;
   final Playlist playlist;
   final Song song;
   final String me;
-  SongItemPlaylist( this.playlist, this.song, this.me);
+  SongItemPlaylist( this.audio, this.playlist, this.song, this.me);
 
   @override
   SongItemPlaylistState createState() => SongItemPlaylistState();
@@ -1426,6 +1420,30 @@ class SongItemPlaylistState extends State<SongItemPlaylist> {
       setState(() {
       });
     }
+  }
+
+  reproducirCancion( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirCancion/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    widget.audio.reproducir(widget.me);
+
+  }
+
+  colaCancion( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addCancionCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
   }
 
 
@@ -1516,7 +1534,7 @@ class SongItemPlaylistState extends State<SongItemPlaylist> {
             ),
             enabled: true,
             subtitle: new Text(hayAutor ? _autor : ''),
-            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+            onTap: () => reproducirCancion(widget.song.id)
           );
         }
     );
@@ -1532,8 +1550,10 @@ class SongItemPlaylistState extends State<SongItemPlaylist> {
   }
 
   void choiceAction(String choice) {
-
-    if (choice == Options.p5){
+    if(choice == Options.p3){
+      colaCancion(widget.song.id);
+    }
+    else if (choice == Options.p5){
       int playlistId = widget.playlist.id;
       print ("Quitar de la Playlist");
       takeOutSong(playlistId);
@@ -1545,13 +1565,14 @@ class SongItemPlaylistState extends State<SongItemPlaylist> {
 }
 
 class SongItemAlbum extends StatefulWidget {
+  final AudioControl audio;
   final Album album;
   final Song song;
   final String me;
-  SongItemAlbum( this.album, this.song, this.me);
+  SongItemAlbum(this.audio, this.album, this.song, this.me);
 
   @override
-  SongItemPlaylistState createState() => SongItemPlaylistState();
+  SongItemAlbumState createState() => SongItemAlbumState();
 }
 
 class SongItemAlbumState extends State<SongItemAlbum> {
@@ -1604,6 +1625,30 @@ class SongItemAlbumState extends State<SongItemAlbum> {
         fav = Icon(Icons.favorite_border);
       });
     }
+  }
+
+  reproducirCancion( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirCancion/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    widget.audio.reproducir(widget.me);
+
+  }
+
+  colaCancion( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addCancionCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
   }
 
   Future takeOutSong(int albumId) async{
@@ -1710,7 +1755,7 @@ class SongItemAlbumState extends State<SongItemAlbum> {
             ),
             enabled: true,
             subtitle: new Text(hayAutor ? _autor : ''),
-            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+            onTap: () => reproducirCancion(widget.song.id)
           );
         }
     );
@@ -1727,11 +1772,12 @@ class SongItemAlbumState extends State<SongItemAlbum> {
 
   void choiceAction(String choice) {
 
-    if (choice == Options.p6){
+    if(choice == Options.p3){
+      colaCancion(widget.song.id);
+    }
+    else if (choice == Options.p6){
       int albumId = widget.album.id;
       takeOutSong(albumId);
-
-      // Push a la vista de playlists del usuario
     }
   }
 

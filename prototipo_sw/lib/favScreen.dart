@@ -512,7 +512,7 @@ class _FavScreenState extends State<FavScreen> {
             children: <Widget>[
               Container(
                 child: GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileOnlyRScreen(widget.email,user.email))).then((value) {
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileOnlyRScreen(widget.email,user.email, widget.audio))).then((value) {
                     setState(() {
                       _future = getFollowingList(widget.email);
                       _futurels = getSongList(widget.email);
