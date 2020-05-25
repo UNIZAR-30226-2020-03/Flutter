@@ -138,7 +138,7 @@ class _SearchListState extends State<SearchList>
 
 
   Future<List<Album>> getAllAlbums() async{
-    List<Album> _list;
+    var _list;
     var uri = Uri.https('upbeatproyect.herokuapp.com','/album/allAlbums');
     final response = await http.get(
       uri,
@@ -187,7 +187,7 @@ class _SearchListState extends State<SearchList>
   }
 
   Future<List<Usuario>> getAllUsers() async{
-    List<Usuario> _list;
+    var _list;
     var uri = Uri.https('upbeatproyect.herokuapp.com','/cliente/allClientes');
     final response = await http.get(
       uri,
@@ -394,7 +394,7 @@ class _SearchListState extends State<SearchList>
 
   List<SongItem> _buildSongSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new SongItem(contact, widget._email))
+      return _list.map((contact) => new SongItem(contact, widget._email, widget.audio))
           .toList();
     }
     else {
@@ -405,7 +405,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new SongItem(contact, widget._email))
+      return _searchList.map((contact) => new SongItem(contact, widget._email, widget.audio))
           .toList();
     }
   }
@@ -423,7 +423,7 @@ class _SearchListState extends State<SearchList>
 
   List<PlaylistItem> _buildPlaylistSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new PlaylistItem(contact, widget._email))
+      return _list.map((contact) => new PlaylistItem(contact, widget._email, widget.audio))
           .toList();
     }
     else {
@@ -434,7 +434,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new PlaylistItem(contact, widget._email))
+      return _searchList.map((contact) => new PlaylistItem(contact, widget._email, widget.audio))
           .toList();
     }
   }
@@ -452,7 +452,7 @@ class _SearchListState extends State<SearchList>
 
   List<AlbumItem> _buildAlbumSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new AlbumItem(contact, widget._email))
+      return _list.map((contact) => new AlbumItem(contact, widget._email, widget.audio))
           .toList();
     }
     else {
@@ -463,7 +463,7 @@ class _SearchListState extends State<SearchList>
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new AlbumItem(contact, widget._email))
+      return _searchList.map((contact) => new AlbumItem(contact, widget._email, widget.audio))
           .toList();
     }
   }
@@ -474,7 +474,7 @@ class _SearchListState extends State<SearchList>
 /*---------------------------------------------------------------------------------------*/
 /*USUARIO ITEMS */
 class UsuarioItem extends StatefulWidget {
-  final Usuario user;
+   var user;
   final String me;
   UsuarioItem( this.user, this.me,);
 
@@ -581,9 +581,10 @@ class UsuarioItemState extends State<UsuarioItem> {
 
 
 class SongItem extends StatefulWidget {
-  final Song song;
+  var song;
+  final AudioControl audio;
   final String me;
-  SongItem( this.song, this.me);
+  SongItem( this.song, this.me, this.audio);
 
   @override
   SongItemState createState() => SongItemState();
@@ -598,6 +599,9 @@ class SongItemState extends State<SongItem> {
   var _creador;
   int id;
   bool hayAutor = false;
+
+
+
 
   isFav(String me, int songId) async {
     var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavSong/$me/$songId');
@@ -641,6 +645,19 @@ class SongItemState extends State<SongItem> {
     }
   }
 
+  reproducirCancion( var idSong) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirCancion/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    widget.audio.reproducir(widget.me);
+
+  }
+
 
   Future<String> getSongAutor() async{
     List<Song> _list;
@@ -680,13 +697,20 @@ class SongItemState extends State<SongItem> {
     isFav(widget.me, widget.song.id);
     
   }
+
   @override
   Widget build(BuildContext context) {
+
     _future2 = getSongAutor();
     return FutureBuilder<dynamic>(
       future: _future2,
       builder: (context, snapshot) {
+
         return new ListTile(
+          onTap: (){
+            print('___________________________________________________');
+          reproducirCancion(widget.song.id);
+           },
           leading: Container(
               height: 50,
               width: 50,
@@ -751,6 +775,179 @@ class SongItemState extends State<SongItem> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => UserPlaylists(widget.me,songId)));
       // Push a la vista de playlists del usuario
     }
+    if (choice == Options.p3){
+
+      widget.audio.addEnd(widget.song.id);
+      // Push a la vista de playlists del usuario
+    }
+  }
+
+}
+
+
+
+
+
+class PodcastItem extends StatefulWidget {
+  var song;
+  final AudioControl audio;
+  final String me;
+  PodcastItem( this.song, this.me, this.audio);
+
+  @override
+  PodcastItemState createState() => PodcastItemState();
+}
+
+class PodcastItemState extends State<PodcastItem> {
+
+  Icon fav = Icon(Icons.favorite_border) ;
+  Future _future2;
+  var jsonData;
+  String _autor;
+  var _creador;
+  int id;
+  bool hayAutor = false;
+
+
+
+
+  isFav(String me, int songId) async {
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/markFavPodcast/$me/$songId');
+    final response2 = await http.get(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    print ("isFAV podcast:" + response2.statusCode.toString());
+    if (response2.statusCode == 200) {
+      var ret = json.decode(response2.body);
+      if(ret == 0){
+        setState(() {
+          fav = Icon(Icons.favorite);
+        });
+      }
+    }
+  }
+
+  favSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/favPodcast/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite);
+      });
+    }
+  }
+
+  unFavSong(String me, int songId) async {
+
+    var uri2 = Uri.https('upbeatproyect.herokuapp.com','/cliente/eliminateFavPodcast/$me/$songId');
+    final response2 = await http.put(
+      uri2,headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    );
+    if (response2.statusCode == 200) {
+      setState(() {
+        fav = Icon(Icons.favorite_border);
+      });
+    }
+  }
+
+  reproducirPodcast( var nombre, var temp, var ep, var url, var img) async{
+    var usuario = widget.me;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/podcast/getStreamMp3Url/$nombre/$temp/$ep",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    widget.audio.reproducirPod(url, nombre, img);
+
+  }
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    isFav(widget.me, widget.song.id);
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    /*_future2 = getSongAutor();
+    return FutureBuilder<dynamic>(
+        future: _future2,
+        builder: (context, snapshot) {*/
+          var t = widget.song.temporada;
+          var e = widget.song.episodio;
+          return new ListTile(
+            onTap: (){
+              print('___________________________________________________');
+              reproducirPodcast(widget.song.nombre, widget.song.temporada, widget.song.episodio, widget.song.pathMp3, widget.song.pathImg);
+            },
+            leading: Container(
+                height: 50,
+                width: 50,
+                decoration: _myBoxDecoration(),
+                child: (widget.song.pathImg != null) ? FittedBox(fit: BoxFit.fill,
+                    child: Image.network(widget.song.pathImg))
+                    : Image.asset('images/appleMusic.png')
+            ),
+            title: new Text(widget.song.nombre),
+            trailing:
+            Wrap(
+              children: <Widget>[
+                IconButton(
+                    icon: fav,
+                    color: Colors.red,
+                    onPressed: () {
+                      print(fav);
+                      if (fav.icon == (Icons.favorite_border)){
+                        favSong(widget.me, widget.song.id);
+                      }
+                      else {
+                        unFavSong(widget.me, widget.song.id);
+                      }
+                    }
+                ),
+
+              ],
+            ),
+            enabled: true,
+            subtitle: new Text('Temp: $t Ep: $e'),
+            //onTap: () => // Añadir a la cola de reproduccion en la 1ª posición.
+          );
+        /*}
+    );*/
+  }
+
+  BoxDecoration _myBoxDecoration(){
+    return BoxDecoration(
+        border: Border.all(
+          color: Colors.cyan,
+          width: 1.5,),
+        borderRadius: BorderRadius.all(Radius.circular(5))
+    );
+  }
+
+  void choiceAction(String choice) {
+
+    if (choice == Options.p1){
+      int songId = widget.song.id;
+      print ("Añadir a Playlist");
+      Navigator.push(context, MaterialPageRoute(builder: (context) => UserPlaylists(widget.me,songId)));
+      // Push a la vista de playlists del usuario
+    }
+    if (choice == Options.p3){
+
+      widget.audio.addEnd(widget.song.id);
+      // Push a la vista de playlists del usuario
+    }
   }
 
 }
@@ -759,9 +956,10 @@ class SongItemState extends State<SongItem> {
 /*PLAYLIST ITEMS */
 /*---------------------------------------------------------------------------------------*/
 class PlaylistItem extends StatefulWidget {
-  final Playlist playlist;
+  var playlist;
   final String me;
-  PlaylistItem( this.playlist, this.me);
+  var audio;
+  PlaylistItem( this.playlist, this.me, this.audio);
 
   @override
   PlaylistItemState createState() => PlaylistItemState();
@@ -925,7 +1123,7 @@ class PlaylistItemState extends State<PlaylistItem> {
 
     if (choice == Options.p2){
       print ("Ver Playlist");
-      Navigator.push(context, MaterialPageRoute(builder: (context) => PlaylistScreen(widget.playlist,widget.me)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PlaylistScreen(widget.playlist,widget.me, widget.audio)));
       // Push a la vista de la playlist
     }
   }
@@ -937,9 +1135,10 @@ class PlaylistItemState extends State<PlaylistItem> {
 /*ALBUM ITEMS */
 /*---------------------------------------------------------------------------------------*/
 class AlbumItem extends StatefulWidget {
-  final Album album;
+  var album;
   final String me;
-  AlbumItem( this.album, this.me);
+  var audio;
+  AlbumItem( this.album, this.me, this.audio);
 
   @override
   AlbumItemState createState() => AlbumItemState();
@@ -1103,7 +1302,7 @@ class AlbumItemState extends State<AlbumItem> {
 
     if (choice == Options.p4){
       print ("Ver Album");
-      Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumScreen(widget.album,widget.me)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AlbumScreen(widget.album,widget.me, widget.audio)));
       // Push a la vista de la playlist
     }
   }
@@ -1120,6 +1319,7 @@ class AlbumItemState extends State<AlbumItem> {
     static const String p6 = "Quitar del Album";
 
     static const List<String> choices = <String> [p1,p3];
+    static const List<String> choice = <String> [p3];
     static const List<String> choicesPl = <String> [p2];
     static const List<String> choicesAl = <String> [p4];
     static const List<String> choicesSPl = <String> [p3,p5];

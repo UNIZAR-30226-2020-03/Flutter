@@ -10,11 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="04757e18-c0d9-4df6-a205-5a1e370895c8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/model/podcast.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/5.6.2/executionHistory/executionHistory.lock" afterDir="false" />
@@ -35,7 +31,7 @@
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/pantallas.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pantallas.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/searchScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/searchScreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/user_playlists.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/user_playlists.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/uploadPodcast.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/uploadPodcast.dart" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -335,7 +331,14 @@
       <option name="project" value="LOCAL" />
       <updated>1590106649080</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="cola de reproduccion">
+      <created>1590324709920</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1590324709920</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -406,7 +409,8 @@
     <MESSAGE value="fix ajuste pantalla" />
     <MESSAGE value="cambio perfil y barSong" />
     <MESSAGE value="cambios pantalla song, songbar, reproductor, albunes y playlist" />
-    <option name="LAST_COMMIT_MESSAGE" value="cambios pantalla song, songbar, reproductor, albunes y playlist" />
+    <MESSAGE value="cola de reproduccion" />
+    <option name="LAST_COMMIT_MESSAGE" value="cola de reproduccion" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">

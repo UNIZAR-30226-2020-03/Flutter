@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:prototipo_sw/AudioControl.dart';
 import 'package:prototipo_sw/home.dart';
 
 import 'package:prototipo_sw/model/album.dart';
@@ -14,7 +15,8 @@ import 'package:http/http.dart' as http;
 class AlbumScreen extends StatefulWidget {
   final Album album;
   final String email;
-  const AlbumScreen(this.album, this.email);
+  final AudioControl audio;
+  const AlbumScreen(this.album, this.email, this.audio);
 
   @override
   _AlbumScreenState createState() => _AlbumScreenState();
@@ -163,7 +165,7 @@ class _AlbumScreenState extends State<AlbumScreen> {
                                           padding: new EdgeInsets.symmetric(vertical: 8.0),
                                           children: songList.map(
                                                   (contact) => new SongItem(
-                                                  contact, widget.email)).toList()
+                                                  contact, widget.email, widget.audio)).toList()
                                       ),
                                     ),
                                   ]

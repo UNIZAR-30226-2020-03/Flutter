@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audiofileplayer/audiofileplayer.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ScreenArguments2 {
   final bool reproduciendo;
@@ -68,6 +69,7 @@ class AudioControl {
   }
 
   void seek (double pos){
+    print('seek________');
     print(reproduciendo);
     if(reproduciendo){
 
@@ -77,6 +79,7 @@ class AudioControl {
 
   }
   int idSong;
+  String _user;
 
   Future<void> streamSong() async{
     print('streamSong');
@@ -107,36 +110,267 @@ class AudioControl {
     return ('Success');
   }
 
-  void reproducir(String song, String nomCanc, String Img, int id) async{
-    idSong = id;
-    ImgPath = Img;
-    songName = nomCanc;
+  var _song;
+  var _secs;
+  var song;
+  reproducirCancion() async{
+    var jsonData;
+    print('____________________');
+    print(_user);
+    var response2 = await http.get("https://upbeatproyect.herokuapp.com/cliente/play/$_user",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status play song: ${response2.statusCode}');
+    jsonData = json.decode(response2.body);
+    print(jsonData);
+    print('____________________');
+    _song = jsonData['cancion'];
+    print(_song);
+    _secs = jsonData['segundos'];
+    idSong = _song['id'];
+    ImgPath = _song['pathImg'];
+    songName = _song['nombre'];
+    song = _song['pathMp3'];
+  }
 
-    Future fut = streamSong();
-    print(nomCanc);
-    print('reproducir');
-    print (reproduciendo);
-    if (reproduciendo){
+
+  nextCancion() async{
+    var jsonData;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/next/$_user",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status next song: ${response2.statusCode}');
+    jsonData = json.decode(response2.body);
+    print(jsonData);
+    print('____________________');_song = jsonData['cancion'];
+    print(_song);
+    _secs = jsonData['segundos'];
+    idSong = _song['id'];
+    ImgPath = _song['pathImg'];
+    songName = _song['nombre'];
+    song = _song['pathMp3'];
+
+
+  }
+
+
+
+
+
+   AudioBar audio2;
+  void getBar(var barSong){
+    audio2 = barSong;
+  }
+
+  void reproducir3(){
+    reproducir(_user);
+  }
+  void getUser(var user){
+    _user = user;
+  }
+
+  bool first = true;
+  void reproducir( var user) async{
+
+    _user = user;
+    print('repr:    $reproduciendo');
+    if (!reproduciendo){
+      /*idSong = id;
+      ImgPath = Img;
+      songName = nomCanc;
+
+
+      print(nomCanc);*/
+      print('reproducir');
+      print (reproduciendo);
+      //streamSong();
+      print('first:    $first');
+      if (first){
+        first = false;
+        await reproducirCancion();
+      }else{
+        await nextCancion();
+      }
+      print('Antes de reproducir : song');
+      print(song);
+      audio = Audio.loadFromRemoteUrl(song,
+          onComplete: (){
+            reproduciendo = false;
+            print('ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc');
+            print(reproduciendo);
+            reproducir(user);
+          },
+          onDuration:(double duration) => audioDuration=duration,
+          onPosition: (double posSeconds) {
+            audioPosition = posSeconds;
+            sliderValue = audioPosition/audioDuration;
+          }
+      );
+      print('xxxxxxxxxxxxxxxxxxxxxx');
+      print(audioDuration);
+      print(audioPosition);
+      print(sliderValue);
+
+      audio.play();
+      reproduciendo = true;
+      print(reproduciendo);
+    } else{
       audio.pause();
       audio.dispose();
 
+      await reproducirCancion();
+      print('Antes de reproducir : song');
+      print(song);
+      audio = Audio.loadFromRemoteUrl(song,
+          onComplete: (){
+            reproduciendo = false;
+            print('ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc');
+            print(reproduciendo);
+            reproducir(user);
+          },
+          onDuration:(double duration) => audioDuration=duration,
+          onPosition: (double posSeconds) {
+            audioPosition = posSeconds;
+            sliderValue = audioPosition/audioDuration;
+          }
+      );
+      print(audioDuration);
+      print(audioPosition);
+      print(sliderValue);
+
+      audio.play();
+      reproduciendo = true;
+      print(reproduciendo);
     }
+
+  }
+
+  void reproducirPod(var url, var nom, var img) async{
+    print('nom: $nom');
+    ImgPath =img;
+    songName = nom;
+    print('repr:    $reproduciendo');
+    if (!reproduciendo){
+      /*idSong = id;
+      ImgPath = Img;
+      songName = nomCanc;
+
+
+      print(nomCanc);*/
+      print('reproducir');
+      print (reproduciendo);
+      //streamSong();
+      audio = Audio.loadFromRemoteUrl(url,
+          onComplete: (){
+            reproduciendo = false;
+            print(reproduciendo);
+          },
+          onDuration:(double duration) => audioDuration=duration,
+          onPosition: (double posSeconds) {
+            audioPosition = posSeconds;
+            sliderValue = audioPosition/audioDuration;
+          }
+      );
+
+      print(audioDuration);
+      print(audioPosition);
+      print(sliderValue);
+
+      audio.play();
+      reproduciendo = true;
+      print(reproduciendo);
+    } else{
+      audio.pause();
+      audio.dispose();
+
+      print('Antes de reproducir : song');
+      print(song);
+      audio = Audio.loadFromRemoteUrl(url,
+          onComplete: (){
+            reproduciendo = false;
+            print(reproduciendo);
+          },
+          onDuration:(double duration) => audioDuration=duration,
+          onPosition: (double posSeconds) {
+            audioPosition = posSeconds;
+            sliderValue = audioPosition/audioDuration;
+          }
+      );
+      print(audioDuration);
+      print(audioPosition);
+      print(sliderValue);
+
+      audio.play();
+      reproduciendo = true;
+      print(reproduciendo);
+    }
+
+  }
+
+
+  var lastIdSong;
+  lastCancion() async{
+    var jsonData;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addCancionCola/$_user/$lastIdSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status next song: ${response2.statusCode}');
+    jsonData = json.decode(response2.body);
+    print(jsonData);
+    print('____________________');_song = jsonData['cancion'];
+    print(_song);
+    _secs = jsonData['segundos'];
+    idSong = _song['id'];
+    ImgPath = _song['pathImg'];
+    songName = _song['nombre'];
+    song = _song['pathMp3'];
+
+
+  }
+
+  void addEnd(var id) async{
+    lastIdSong = id;
+    lastCancion();
+  }
+
+  void nextSong() async{
+    audio.pause();
+    audio.dispose();
+
+    await nextCancion();
+    print('Antes de reproducir : song');
+    print(song);
     audio = Audio.loadFromRemoteUrl(song,
-    onComplete: (){reproduciendo = false;},
-    onDuration:(double duration) => audioDuration=duration,
-     onPosition: (double posSeconds) {
-         audioPosition = posSeconds;
-         sliderValue = audioPosition/audioDuration;
-     }
+        onComplete: (){
+          reproduciendo = false;
+          print('ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc');
+          print(reproduciendo);
+          reproducir(_user);
+        },
+        onDuration:(double duration) => audioDuration=duration,
+        onPosition: (double posSeconds) {
+          audioPosition = posSeconds;
+          sliderValue = audioPosition/audioDuration;
+        }
     );
     print(audioDuration);
     print(audioPosition);
     print(sliderValue);
-    print(song);
+
     audio.play();
     reproduciendo = true;
     print(reproduciendo);
   }
+
+
+
+
 }
 
 class AuxAudioBar {
@@ -198,26 +432,51 @@ class _AudioBarState extends State<AudioBar> {
   bool mitad ;
   bool icon ;
 
+   callback() {
+     print('calback___________________________');
+    setState(() {
+
+    });
+  }
+  String _now;
+  Timer _everySecond;
+
   @override
   void initState(){
     super.initState();
     auxAudio.printVol();
+
     print('gdhbdjvbhnj');
     volume = 0;
     volume = auxAudio.getVol();
     volumeP = auxAudio.getVolP();
     mitad = auxAudio.getMitad();
     icon = auxAudio.getIcon();
+
+    // sets first value
+    _now = DateTime.now().second.toString();
+
+    // defines a timer
+    _everySecond = Timer.periodic(Duration(seconds: 2), (Timer t) {
+
+      setState(() {
+        print('lololololo');
+        _now = DateTime.now().second.toString();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+
     reproduciendo = audio.reproduciendo;
     if (reproduciendo){
       print('rep = true');
       icon = true;
+      print(mitad);
       if (mitad){
-        print('mitad');
+
         icon = false;
       }
     }
@@ -262,15 +521,18 @@ class _AudioBarState extends State<AudioBar> {
                         print('parada');
                         audio.parar();
                         mitad = true;
+                        //auxAudio.setMitad(mitad);
                       }else{
                         print('seguir');
                         audio.seguir();
                         mitad = false;
+                        //auxAudio.setMitad(mitad);
                       }
 
-                    }/*else {
-                      audio.reproducir2();
-                    }*/
+                    }else {
+                      print('ooooooooooooooooooooooooooo');
+                      audio.reproducir3();
+                    }
 
                     setState(() {
                       reproduciendo = !reproduciendo;
@@ -321,6 +583,9 @@ class _AudioBarState extends State<AudioBar> {
       ),
     );
   }
+
+
+
 
 
 
@@ -407,6 +672,7 @@ class _SongScreenState extends State<SongScreen> {
     }
 
     imgPath = audio.getImagen();
+    name = audio.getNomCancion();
 
   print(imgPath);
 
@@ -462,13 +728,13 @@ class _SongScreenState extends State<SongScreen> {
 
 
             Container(height: 25,),
-            Text ('Grupo',
+            /*Text ('Grupo',
               style: TextStyle(fontSize: 30.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[700]),
-            ),
+            ),*/
             Container(height: 75,),
-            Row(
+            /*Row(
               children: <Widget>[
                 Expanded(
                   child: Row(
@@ -489,21 +755,18 @@ class _SongScreenState extends State<SongScreen> {
                   ),
                 ),
               ],
-            ),
-            IconButton(
-              icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow),
-              onPressed: (){
-                if (reproduciendo){
-                  //audioPlayer.stop();
-                }else {
-                  //audioCache.play(_songs[currentSong]);
-                }
+            ),*/
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
 
-                setState(() {
-                  reproduciendo = !reproduciendo;
-                });
 
-              },
+                Container(width: 10,),
+                IconButton(
+                  icon: Icon(Icons.skip_next, color: Colors.black, size: 50,),
+                  onPressed: (){audio.nextSong();},
+                ),
+              ],
             ),
             Slider(
                 value: sliderValue,

@@ -8,6 +8,7 @@ import 'package:prototipo_sw/AudioControl.dart';
 import 'package:prototipo_sw/crear_playlist.dart';
 import 'package:prototipo_sw/model/album.dart';
 import 'package:prototipo_sw/model/playlist.dart';
+import 'package:prototipo_sw/model/podcast.dart';
 import 'package:prototipo_sw/model/song.dart';
 import 'crear_album.dart';
 import 'searchScreen.dart';
@@ -51,8 +52,10 @@ class SongsState extends State<Songs>{
   final _songs = ['twice-tt-mv.mp3','twice-fancy-mv.mp3','','','twice-tt-mv.mp3','twice-fancy-mv.mp3','','','twice-tt-mv.mp3','twice-fancy-mv.mp3','',''];
   final _saved = Set();
 
-  List<Playlist> _playlists;
-  List<Album> _albums;
+  var _playlists;
+  var _albums;
+  var _popSongs;
+  var _popSongs2;
   List<Song> _songlist;
   bool listFixPlaylist = true;
 
@@ -71,6 +74,7 @@ class SongsState extends State<Songs>{
   final _ScreensHome = [ 'Songs', 'Playlists', 'Albums', 'Podcasts'];
 
   var jsonData;
+  var jsonData3;
 
   var _nombre;
   var _nombre2;
@@ -78,13 +82,16 @@ class SongsState extends State<Songs>{
   Future _future;
   Future _futurePl;
   Future _futureP2;
+  Future _futureP3;
+  Future _futureP4;
   Future _futurels;
   Future _futurels2;
+  Future _futurels3;
   ByteData _audioByteData;
   ByteData data;
 
-  Playlist playlist;
-  Album album;
+  var playlist;
+  var album;
   bool viewPlaylist;
   bool viewAlbum;
   String nomPlaylist = "";
@@ -121,35 +128,123 @@ class SongsState extends State<Songs>{
   }
 
 
-  Future<String> getSongs() async{
+  reproducirCancion( var idSong) async{
+    var usuario = widget.user;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirCancion/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    audio.reproducir(widget.user);
+
+  }
+  reproducirPlaylist( var idSong) async{
+    var usuario = widget.user;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirPlaylist/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    audio.reproducir(widget.user);
+
+  }
+  colaPlaylist( var idSong) async{
+    var usuario = widget.user;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addPlaylistCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    //audio.reproducir(widget.user);
+
+  }
+  reproducirAlbum( var idSong) async{
+    var usuario = widget.user;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/reproducirAlbum/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    audio.reproducir(widget.user);
+
+  }
+  colaAlbum( var idSong) async{
+    var usuario = widget.user;
+    var response2 = await http.put("https://upbeatproyect.herokuapp.com/cliente/addAlbumCola/$usuario/$idSong",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response2 status añadir a cola primera: ${response2.statusCode}');
+
+    //audio.reproducir(widget.user);
+
+  }
+
+  Future<List<Song>> getSongs() async{
+    var _list;
     print('getSongs');
-    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/allSongs');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/cancion/allSongsOrderByPopularity');
     final response = await http.get(
       uri,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    print('Response status: ${response.statusCode}');
+    print('Response status all songs by popularity: ${response.statusCode}');
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON
       setState(() {
-        print(response.body);
         jsonData = json.decode(response.body);
-        print(jsonData[0]);
-        _nombre = jsonData[0];
-        print(_nombre);
-        _nombre2 = _nombre['nombre'];
-        cancion = _nombre['path'];
-
-        print(_nombre2);
-
+        print(jsonData);
+        print('ssssssssssssssssssssssss');
+        _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
       });
+      print('ssssssssssssssssssssssss');
+      //print (_list);
+      print('songs ok');
 
     }
-    return ('Success');
+    return _list;
   }
+
+  Future<List<Podcast>> getPodcasts() async{
+    var _list;
+    print('getSongs');
+    var uri = Uri.https('upbeatproyect.herokuapp.com','/podcast/allPodcastOrderByPopularity');
+    final response = await http.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('Response status all podcast by popularity: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON
+      setState(() {
+        jsonData = json.decode(response.body);
+        print(jsonData);
+        print('ssssssssssssssssssssssss');
+        _list = (jsonData as List).map((p) => Podcast.fromJson(p)).toList();
+      });
+      print('ssssssssssssssssssssssss');
+
+      print('podcast ok');
+
+    }
+    return _list;
+  }
+
 
   void _loadAudioByteData() async {
     print('loadAudio');
@@ -172,7 +267,8 @@ class SongsState extends State<Songs>{
     super.initState();
     _futurePl = getUserPlaylists(widget.user);
     _futureP2 = getUserAlbums(widget.user);
-
+    _futureP3 = getSongs();
+    _futureP4= getPodcasts();
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
     playlist = null;
@@ -181,6 +277,7 @@ class SongsState extends State<Songs>{
     viewAlbum = false;
     var auxAudio = AuxAudioBar();
     auxAudio.printVol();
+    audio.getUser(widget.user);
     audio2 = AudioBar(audio, auxAudio);
   }
 
@@ -229,95 +326,89 @@ class SongsState extends State<Songs>{
   }
 
   Widget _buildAll(){
-    print(SizeConfig.screenWidth);
+    //print(SizeConfig.screenWidth);
     double tam_pantalla_alt = SizeConfig.screenHeight;
     double tam_body = tam_pantalla_alt -10-15-34-40-200;
 
-    print(tam_body);
+    //print(tam_body);
 
 
 
-    return Container(
-      child: Column (
-        children: <Widget>[
-          /*FutureBuilder(
-            future: _future,
-            builder: (context, snapshot){
-              return IconButton(
-                icon: Icon(Icons.play_circle_outline),
-                onPressed: (){
-                  print('presionado');
-                  //Audio audio = Audio.load('assets/twice-fancy-mv.mp3');
-                  //List<int> bytes = utf8.encode(cancion);
-                  //ByteData byte = bytes;
-                  //ByteData _audioByteData = rootBundle.load(cancion);
-                  //Audio audio = Audio.loadFromByteData(data);
-                  //audio.play();
-                  print(cancion);
-                  Audio audio = Audio.loadFromRemoteUrl(cancion);
-                  audio.play();
-                  print('____');
-                  //audio.dispose();
-                },
-              );
-            },
-          ),*/
-          Container(
-            height: 10,
-          ),
-          _buildFullTopMenu(),
-          Container(
-            height: 15,
-          ),
-          Row(
+
+        return Container(
+          color: Colors.white,
+          child: Column (
             children: <Widget>[
-              Text('   Tus últimas 10',
-              style: TextStyle(
-                  //color: Colors.cyan,
-                  fontSize: 34.0,
-                  fontWeight: FontWeight.w600
+              Container(
+                height: 10,
               ),
-              )
-            ],
-          ),
-          Container(
-            height: 10,
-          ),
-          Container(
-            height: tam_body,
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  height: tam_body-40,
-                  child:
-                  ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: _songsName.length,
-                      itemBuilder: (context, i){
-                        return Column(
-                          children: <Widget>[
-                            _buildRow(_songsName[i], _singers[i], _songs [i], i),
-                            Divider(
-                                color: Colors.cyan,
-                              indent: 20,
-                              endIndent: 20,
-                            ),
-                          ],
-                        );
-                      }
+              _buildFullTopMenu(),
+              Container(
+                height: 15,
+              ),
+              Row(
+                children: <Widget>[
+                  Text('   Canciones populares',
+                  style: TextStyle(
+                      //color: Colors.cyan,
+                      fontSize: 34.0,
+                      fontWeight: FontWeight.w600
                   ),
-                ),
+                  )
+                ],
+              ),
+              Container(
+                height: 10,
+              ),
+              Container(
+                height: tam_body,
+                child: FutureBuilder<List<Song>>(
+                future: _futureP3,
+                  builder: (context, snapshot2) {
+                    print(snapshot2.data);
+                    print('fvgbhdnsmkdjbvsgbhnj');
+                    if (!snapshot2.hasData)
+                      return Center(child: CircularProgressIndicator());
+                    else
+                      _popSongs = snapshot2.data;
+                    print('fvgbhdnsmkdjbvsgbhnj');
+                    print(_popSongs);
+                    return Stack(
+                      children: <Widget>[
+                        Container(
+                            height: tam_body - 40,
+                            child:
+                            Column(
+                              children: <Widget>[
+                                //_buildRow(_popSongs[i]),
+                                ListView(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    padding: new EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    children: _popSongs.map<Widget>(
+                                            (contact) =>
+                                        new SongItem(
+                                            contact, widget.user, audio)).toList()
+                                ),
 
-                //AudioBar(audio),
-                audio2,
-                //_buildSongBar(),
-              ],
-            ),
+                              ],
+                            )
+                        ),
+
+                        //AudioBar(audio),
+                        audio2,
+                        //_buildSongBar(),
+                      ],
+                    );
+                  }),
+            )
+           ]
           ),
-        ]
-      ),
-    );
-  }
+        );
+      }
+    //aqui
+
 
   Widget _buildSongs(){
 
@@ -382,7 +473,7 @@ class SongsState extends State<Songs>{
                           Icons.add, color: Colors.white
                         )
                       ),
-                    ), 
+                    ),
                   ),
                   Expanded(
                     child: SizedBox(
@@ -417,9 +508,37 @@ class SongsState extends State<Songs>{
                        ),
                       if (viewPlaylist) showPlaylist(playlist)
                       else Container(height: 190,),
-                      IconButton(
-                        icon: Icon(Icons.stop),
-                        onPressed: (){audio.parar();}
+                      if (viewPlaylist) Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RaisedButton(
+                            color: Colors.cyan,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(15.0),
+                                side: BorderSide(color: Colors.black)),
+                            onPressed: ()  {
+                              // devolverá true si el formulario es válido, o falso si
+                              // el formulario no es válido.
+                              reproducirPlaylist(playlist.id);
+                            },
+                            child: Text('Reproducir', style: TextStyle(color: Colors.white)),
+                          ),
+                          Container(
+                            width: 40,
+                          ),
+                          RaisedButton(
+                            color: Colors.cyan,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(15.0),
+                                side: BorderSide(color: Colors.black)),
+                            onPressed: ()  {
+                              // devolverá true si el formulario es válido, o falso si
+                              // el formulario no es válido.
+                              colaPlaylist(playlist.id);
+                            },
+                            child: Text('Añadir a la cola', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
                       ),
 
                     ],
@@ -435,14 +554,16 @@ class SongsState extends State<Songs>{
       }
     );
   }
-    
+
   Widget _buildAlbums(){
 
     return FutureBuilder<Object>(
         future: _futureP2,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-          else _albums = snapshot.data;
+        builder: (context, snapshot2) {
+          print(snapshot2.data);
+          if (!snapshot2.hasData) return Center(child: CircularProgressIndicator());
+          else _albums = snapshot2.data;
+
           return Container(
             child: Column(
                 children: <Widget>[
@@ -519,6 +640,38 @@ class SongsState extends State<Songs>{
                               ),
                               if (viewAlbum) showAlbum(album)
                               else Container(height: 190,),
+                              if (viewAlbum) Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  RaisedButton(
+                                    color: Colors.cyan,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: new BorderRadius.circular(15.0),
+                                        side: BorderSide(color: Colors.black)),
+                                    onPressed: ()  {
+                                      // devolverá true si el formulario es válido, o falso si
+                                      // el formulario no es válido.
+                                      reproducirAlbum(playlist.id);
+                                    },
+                                    child: Text('Reproducir', style: TextStyle(color: Colors.white)),
+                                  ),
+                                  Container(
+                                    width: 40,
+                                  ),
+                                  RaisedButton(
+                                    color: Colors.cyan,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: new BorderRadius.circular(15.0),
+                                        side: BorderSide(color: Colors.black)),
+                                    onPressed: ()  {
+                                      // devolverá true si el formulario es válido, o falso si
+                                      // el formulario no es válido.
+                                      colaAlbum(playlist.id);
+                                    },
+                                    child: Text('Añadir a la cola', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
+                              ),
 
                             ],
                           ),
@@ -535,103 +688,117 @@ class SongsState extends State<Songs>{
         }
     );
   }
-    
+
       Widget _buildPodcasts(){
+        double tam_pantalla_alt = SizeConfig.screenHeight;
+        double tam_body = tam_pantalla_alt -10-15-34-40-200;
         return Container(
           color: Colors.white,
-          child: Column(
-            children: <Widget>[
-              Container(
-                height: 10,
-              ),
-              _buildFullTopMenu(),
-              Container(
-                height: 15,
-              ),
-              Row(
-                children: <Widget>[
-                  Text('     Podcasts',
-                    style: TextStyle(
-                      //color: Colors.cyan,
-                        fontSize: 34.0,
-                        fontWeight: FontWeight.w600
-    
-                    ),
-                  )
-                ],
-              ),
-              Container(
-                height: 10,
-              ),
-              Container(
-    
-                height: 770,
-                child: Stack(
+          child: Column (
+              children: <Widget>[
+                Container(
+                  height: 10,
+                ),
+                _buildFullTopMenu(),
+                Container(
+                  height: 15,
+                ),
+                Row(
                   children: <Widget>[
-                    Container(
-    
-                      height: 730,
-                      child:
-    
-    
-    
-                      ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _playlists.length,
-                          itemBuilder: (context, i) {
-                            print(i);
-                            return _buildRowPlaylist(_playlists[i]);
-                          }
-    
+                    Text('   Podcast populares',
+                      style: TextStyle(
+                        //color: Colors.cyan,
+                          fontSize: 34.0,
+                          fontWeight: FontWeight.w600
                       ),
-    
-                    ),
-
-
-
-                    audio2,
+                    )
                   ],
                 ),
-              ),
-            ],
+                Container(
+                  height: 10,
+                ),
+                Container(
+                  height: tam_body,
+                  child: FutureBuilder<List<Podcast>>(
+                      future: _futureP4,
+                      builder: (context, snapshot2) {
+                        print(snapshot2.data);
+                        print('fvgbhdnsmkdjbvsgbhnj');
+                        if (!snapshot2.hasData)
+                          return Center(child: CircularProgressIndicator());
+                        else
+                          _popSongs2 = snapshot2.data;
+
+                        print(_popSongs2);
+                        return Stack(
+                          children: <Widget>[
+                            Container(
+                                height: tam_body - 40,
+                                child:
+                                Column(
+                                  children: <Widget>[
+                                    //_buildRow(_popSongs[i]),
+                                    ListView(
+                                        scrollDirection: Axis.vertical,
+                                        shrinkWrap: true,
+                                        padding: new EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        children: _popSongs2.map<Widget>(
+                                                (contact) =>
+                                            new PodcastItem(
+                                                contact, widget.user, audio)).toList()
+                                    ),
+
+                                  ],
+                                )
+                            ),
+
+                            //AudioBar(audio),
+                            audio2,
+                            //_buildSongBar(),
+                          ],
+                        );
+                      }),
+                )
+              ]
           ),
         );
       }
-    
+
     Widget _buildFullTopMenu(){
-    
-    
+
+
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-    
+
             SizedBox(
               width: 74,
               child: _buildTopMenu(0),
             ),
-    
+
             SizedBox(
               width: 88,
               child: _buildTopMenu(1),
             ),
-    
+
             Container(
               width: 83,
               child: _buildTopMenu(2),
             ),
-    
+
             Container(
               width: 94,
               child: _buildTopMenu(3),
             ),
-    
-    
-    
-    
+
+
+
+
           ],
         );
     }
-    
+
      Widget _buildTopMenu(var screen){
         return ButtonTheme(
           minWidth: 40,
@@ -641,7 +808,7 @@ class SongsState extends State<Songs>{
               onPressed: (){
                 setState(() {
                   if (screen == _currentScreenHome){
-    
+
                   } else{
                     _currentScreenHome = screen;
                     for(int i = 0; i<4; i++){
@@ -650,7 +817,7 @@ class SongsState extends State<Songs>{
                     _currentScreenHomeBool[screen]=true;
                   }
                 });
-    
+
               },
               child: Text(
                 _ScreensHome[screen],
@@ -662,57 +829,57 @@ class SongsState extends State<Songs>{
         )
           ;
     }
-    
-    
-      Widget _buildRow(var songName, var group, var song, var index){
-        final savedSongs = _saved.contains(songName);
+
+
+      Widget _buildRow(var song){
+        print('______________________________________________________________________');
+        print(song);
+        final savedSongs = [] ;//= _saved.contains(songName);
         return ListTile(
-          title: Text(songName),
-          subtitle: Text(group),
+          title: Text(song.nombre),
+          //subtitle: Text(song.),
           leading: Container(
             width: 85,
             child: Row(
-    
+
             children: <Widget>[
-    
+
                 Container(
                     height: 50,
                     width: 50,
                     decoration: _myBoxDecoration(),
-                    child: Image.asset('images/appleMusic.png')),
+                    child: (song.pathImg != null)
+                        ? Image.network(song.pathImg)
+                        : Image.asset('images/appleMusic.png'),),
                 SizedBox(width: 10,),
                 Icon(Icons.play_arrow),
              ],
               ),
           ),
           onTap: (){
-            audioCache.play(song);
-            currentSong = index;
+            //audioCache.play(song);
+
             setState(() {
               reproduciendo = true;
             });
           },
           trailing: IconButton(
-            icon : Icon(savedSongs ? Icons.favorite : Icons.favorite_border),
-            color : savedSongs ? Colors.cyan : null,
+            icon : Icon( Icons.favorite_border),
+            color : Colors.cyan ,
             onPressed: (){
               setState((){
-                if(savedSongs){
-                  _saved.remove(songName);
-                }else{
-                  _saved.add(songName);
-                }
+
               });
             },
           ),
-    
+
         ) ;
       }
-    
+
       //final<List> FavSongsList{
-    
+
      // }
-    
+
       BoxDecoration _myBoxDecoration(){
         return BoxDecoration(
           border: Border.all(
@@ -721,7 +888,7 @@ class SongsState extends State<Songs>{
           borderRadius: BorderRadius.all(Radius.circular(5))
         );
       }
-    
+
     Widget _buildRowPlaylist(Playlist _playlist){
       createMenu(BuildContext context){
         return showDialog(context: context, builder: (context){
@@ -798,7 +965,7 @@ class SongsState extends State<Songs>{
         ),
       );
     }
-    
+
     BoxDecoration _playlistDecoration(){
       return BoxDecoration(
         color: Colors.white,
@@ -807,7 +974,7 @@ class SongsState extends State<Songs>{
             width: 2.0,
             color: Colors.cyan,
           ),
-    
+
           right: BorderSide(
             width: 6.5,
             color: Colors.cyan,
@@ -819,9 +986,9 @@ class SongsState extends State<Songs>{
           bottom: BorderSide(
             width: 2.0,
             color: Colors.cyan,
-    
+
           ),
-          
+
         ),
         boxShadow: [
           BoxShadow(
@@ -839,21 +1006,21 @@ class SongsState extends State<Songs>{
           BoxShadow(
             color:Colors.white,
             offset: Offset(3,0),
-    
-    
+
+
           ),]
-    
-    
-    
+
+
+
       );
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
       Widget _buildRowAlbum(Album _album){
         createMenu(BuildContext context){
           return showDialog(context: context, builder: (context){
@@ -926,7 +1093,7 @@ class SongsState extends State<Songs>{
           ),
         );
       }
-    
+
       BoxDecoration _albumDecoration(){
         return BoxDecoration(
             color: Colors.white,
@@ -935,7 +1102,7 @@ class SongsState extends State<Songs>{
                 width: 2.0,
                 color: Colors.cyan,
               ),
-    
+
               right: BorderSide(
                 width: 8,
                 color: Colors.cyan,
@@ -947,14 +1114,14 @@ class SongsState extends State<Songs>{
               bottom: BorderSide(
                 width: 2.0,
                 color: Colors.cyan,
-    
+
               ),
-    
+
             ),
         );
       }
-    
-    
+
+
       Widget _buildSongBar(){
 
 
@@ -1045,7 +1212,7 @@ class SongsState extends State<Songs>{
   }
 
   Future<List<Album>> getUserAlbums(String correo) async{
-    List<Album> _list;
+    List<Album> _list2;
     print('getAlbums');
     var uri = Uri.https('upbeatproyect.herokuapp.com','/artista/myAlbums/$correo');
     final response = await http.get(
@@ -1057,11 +1224,11 @@ class SongsState extends State<Songs>{
     print('Album Response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       setState(() {
-        jsonData = json.decode(response.body);
-        _list = (jsonData as List).map((p) => Album.fromJson(p)).toList();
+        jsonData3 = json.decode(response.body);
+        _list2 = (jsonData3 as List).map((p) => Album.fromJson(p)).toList();
       });
     }
-    return _list;
+    return _list2;
   }
 
    Future<List<Song>> getPlaylistSongs(Playlist playlist) async{
@@ -1109,15 +1276,24 @@ class SongsState extends State<Songs>{
         _list = (jsonData as List).map((p) => Song.fromJson(p)).toList();
       });
       print (_list);
-      print('canciones de playlist ok');
+      print('canciones de album ok');
     }
     return _list;
+  }
+
+  var _id;
+  void choiceAction(String choice) {
+
+    if (choice == Options.p3){
+
+      widget.audio.addEnd(_id);
+      // Push a la vista de playlists del usuario
+    }
   }
 
 
 
   Widget showPlaylist(Playlist _playlist) {
- 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(

@@ -45,8 +45,8 @@ class _FavScreenState extends State<FavScreen> {
       print('All following done');
        jsonData = json.decode(response.body);
        _list = (jsonData as List).map((p) => Usuario.fromJson(p)).toList();
-     
-    } 
+
+    }
     return _list;
   }
 
@@ -117,9 +117,9 @@ class _FavScreenState extends State<FavScreen> {
   Future _futurels;
   Future _futurePl;
   Future _futureAl;
- 
+
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     _future = getFollowingList(widget.email);
     _futurels = getSongList(widget.email);
@@ -158,7 +158,7 @@ class _FavScreenState extends State<FavScreen> {
                   child: Stack(
                     children: <Widget>[
                       Container(
-                        height: 80,
+                        height: 82,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: followingList.length,
@@ -223,8 +223,9 @@ class _FavScreenState extends State<FavScreen> {
                                 padding: new EdgeInsets.symmetric(vertical: 8.0),
                                 children: songList.map(
                                         (contact) => new SongItem(
-                                        contact, widget.email)).toList()
+                                        contact, widget.email, widget.audio)).toList()
                             ),
+
                           ),
                         ]
                     ),
@@ -376,7 +377,7 @@ class _FavScreenState extends State<FavScreen> {
       child: GestureDetector(
         onTap: () => Navigator.push(context,
             MaterialPageRoute(
-                builder: (context) => PlaylistScreen(_playlist, widget.email))),
+                builder: (context) => PlaylistScreen(_playlist, widget.email, widget.audio))),
         child: Row(
           children: <Widget>[
             Container(width: 30,),
@@ -406,7 +407,7 @@ class _FavScreenState extends State<FavScreen> {
       child: GestureDetector(
         onTap: () => Navigator.push(context,
             MaterialPageRoute(
-                builder: (context) => AlbumScreen(_album, widget.email))),
+                builder: (context) => AlbumScreen(_album, widget.email, widget.audio))),
         child: Row(
           children: <Widget>[
             Container(width: 30,),
@@ -415,7 +416,7 @@ class _FavScreenState extends State<FavScreen> {
                 Container(
                   width: 120,
                   height: 120,
-                  decoration: _playlistDecoration(),
+                  decoration: _albumDecoration(),
                   child: (_album.pathImg != null)
                       ? Image.network(_album.pathImg)
                       : Image.asset('images/appleMusic.png'),
@@ -426,6 +427,32 @@ class _FavScreenState extends State<FavScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+  BoxDecoration _albumDecoration(){
+    return BoxDecoration(
+      color: Colors.white,
+      border: Border(
+        left: BorderSide(
+          width: 2.0,
+          color: Colors.cyan,
+        ),
+
+        right: BorderSide(
+          width: 8,
+          color: Colors.cyan,
+        ),
+        top: BorderSide(
+          width: 8,
+          color: Colors.cyan,
+        ),
+        bottom: BorderSide(
+          width: 2.0,
+          color: Colors.cyan,
+
+        ),
+
       ),
     );
   }
