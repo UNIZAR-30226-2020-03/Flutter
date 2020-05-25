@@ -37,6 +37,8 @@ class _UploadPodcastState extends State<UploadPodcast> {
   List<Album> _listAlbums;
 
   String _name;
+  String _ep;
+  String _temp;
   var args;
   var audio;
   var image;
@@ -111,6 +113,8 @@ class _UploadPodcastState extends State<UploadPodcast> {
 
     Map data = {
       'nombre': _name,
+      'episodio': _ep,
+      'temporada': _temp,
       'duracion': '0',
       'pathMp3': _uploadedFileURL,
       'pathImg': _uploadedImgURL,
@@ -256,6 +260,7 @@ class _UploadPodcastState extends State<UploadPodcast> {
 
 
                             TextFormField(
+
                               decoration: const InputDecoration(
                                 icon: Icon(Icons.music_video, color: Colors.cyan),
 
@@ -272,33 +277,35 @@ class _UploadPodcastState extends State<UploadPodcast> {
                               },
                             ),
                             TextFormField(
+                              keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 icon: Icon(Icons.music_video, color: Colors.cyan),
 
-                                labelText: 'Capitulo',
+                                labelText: 'Capítulo',
                                 //font:
                               ),
-                              onChanged: (val) => _name = val,
+                              onChanged: (val) => _ep = val,
                               validator: (String value) {
-                                print(_name);
+                                print(_ep);
                                 if (value.isEmpty) {
-                                  return 'Por favor introduce un nombre correcto';
+                                  return 'Por favor introduce un capítulo';
                                 }
                                 else return null;
                               },
                             ),
                             TextFormField(
+                              keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 icon: Icon(Icons.music_video, color: Colors.cyan),
 
                                 labelText: 'Temporada',
                                 //font:
                               ),
-                              onChanged: (val) => _name = val,
+                              onChanged: (val) => _temp = val,
                               validator: (String value) {
-                                print(_name);
+                                print(_temp);
                                 if (value.isEmpty) {
-                                  return 'Por favor introduce un nombre correcto';
+                                  return 'Por favor introduce una temporada';
                                 }
                                 else return null;
                               },

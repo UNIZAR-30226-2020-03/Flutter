@@ -157,8 +157,25 @@ class AudioControl {
 
   }
 
+
+
+
+
+   AudioBar audio2;
+  void getBar(var barSong){
+    audio2 = barSong;
+  }
+
+  void reproducir3(){
+    reproducir(_user);
+  }
+  void getUser(var user){
+    _user = user;
+  }
+
   bool first = true;
   void reproducir( var user) async{
+
     _user = user;
     print('repr:    $reproduciendo');
     if (!reproduciendo){
@@ -193,6 +210,7 @@ class AudioControl {
             sliderValue = audioPosition/audioDuration;
           }
       );
+      print('xxxxxxxxxxxxxxxxxxxxxx');
       print(audioDuration);
       print(audioPosition);
       print(sliderValue);
@@ -230,6 +248,70 @@ class AudioControl {
     }
 
   }
+
+  void reproducirPod(var url, var nom, var img) async{
+    print('nom: $nom');
+    ImgPath =img;
+    songName = nom;
+    print('repr:    $reproduciendo');
+    if (!reproduciendo){
+      /*idSong = id;
+      ImgPath = Img;
+      songName = nomCanc;
+
+
+      print(nomCanc);*/
+      print('reproducir');
+      print (reproduciendo);
+      //streamSong();
+      audio = Audio.loadFromRemoteUrl(url,
+          onComplete: (){
+            reproduciendo = false;
+            print(reproduciendo);
+          },
+          onDuration:(double duration) => audioDuration=duration,
+          onPosition: (double posSeconds) {
+            audioPosition = posSeconds;
+            sliderValue = audioPosition/audioDuration;
+          }
+      );
+
+      print(audioDuration);
+      print(audioPosition);
+      print(sliderValue);
+
+      audio.play();
+      reproduciendo = true;
+      print(reproduciendo);
+    } else{
+      audio.pause();
+      audio.dispose();
+
+      print('Antes de reproducir : song');
+      print(song);
+      audio = Audio.loadFromRemoteUrl(url,
+          onComplete: (){
+            reproduciendo = false;
+            print(reproduciendo);
+          },
+          onDuration:(double duration) => audioDuration=duration,
+          onPosition: (double posSeconds) {
+            audioPosition = posSeconds;
+            sliderValue = audioPosition/audioDuration;
+          }
+      );
+      print(audioDuration);
+      print(audioPosition);
+      print(sliderValue);
+
+      audio.play();
+      reproduciendo = true;
+      print(reproduciendo);
+    }
+
+  }
+
+
   var lastIdSong;
   lastCancion() async{
     var jsonData;
@@ -286,40 +368,9 @@ class AudioControl {
     print(reproduciendo);
   }
 
-  void reproducir3( var user) async{
-    _user = user;
-    if (!reproduciendo){
-      /*idSong = id;
-      ImgPath = Img;
-      songName = nomCanc;
 
 
-      print(nomCanc);*/
-      print('reproducir');
-      print (reproduciendo);
-      //streamSong();
-      nextCancion();
-      audio = Audio.loadFromRemoteUrl(song,
-          onComplete: (){
-            reproduciendo = false;
-            reproducir3(user);
-          },
-          onDuration:(double duration) => audioDuration=duration,
-          onPosition: (double posSeconds) {
-            audioPosition = posSeconds;
-            sliderValue = audioPosition/audioDuration;
-          }
-      );
-      print(audioDuration);
-      print(audioPosition);
-      print(sliderValue);
 
-      audio.play();
-      reproduciendo = true;
-      print(reproduciendo);
-    }
-
-  }
 }
 
 class AuxAudioBar {
@@ -381,26 +432,51 @@ class _AudioBarState extends State<AudioBar> {
   bool mitad ;
   bool icon ;
 
+   callback() {
+     print('calback___________________________');
+    setState(() {
+
+    });
+  }
+  String _now;
+  Timer _everySecond;
+
   @override
   void initState(){
     super.initState();
     auxAudio.printVol();
+
     print('gdhbdjvbhnj');
     volume = 0;
     volume = auxAudio.getVol();
     volumeP = auxAudio.getVolP();
     mitad = auxAudio.getMitad();
     icon = auxAudio.getIcon();
+
+    // sets first value
+    _now = DateTime.now().second.toString();
+
+    // defines a timer
+    _everySecond = Timer.periodic(Duration(seconds: 2), (Timer t) {
+
+      setState(() {
+        print('lololololo');
+        _now = DateTime.now().second.toString();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+
     reproduciendo = audio.reproduciendo;
     if (reproduciendo){
       print('rep = true');
       icon = true;
+      print(mitad);
       if (mitad){
-        print('mitad');
+
         icon = false;
       }
     }
@@ -445,15 +521,18 @@ class _AudioBarState extends State<AudioBar> {
                         print('parada');
                         audio.parar();
                         mitad = true;
+                        //auxAudio.setMitad(mitad);
                       }else{
                         print('seguir');
                         audio.seguir();
                         mitad = false;
+                        //auxAudio.setMitad(mitad);
                       }
 
-                    }/*else {
-                      audio.reproducir2();
-                    }*/
+                    }else {
+                      print('ooooooooooooooooooooooooooo');
+                      audio.reproducir3();
+                    }
 
                     setState(() {
                       reproduciendo = !reproduciendo;
@@ -504,6 +583,9 @@ class _AudioBarState extends State<AudioBar> {
       ),
     );
   }
+
+
+
 
 
 
@@ -590,6 +672,7 @@ class _SongScreenState extends State<SongScreen> {
     }
 
     imgPath = audio.getImagen();
+    name = audio.getNomCancion();
 
   print(imgPath);
 
@@ -651,7 +734,7 @@ class _SongScreenState extends State<SongScreen> {
                   color: Colors.grey[700]),
             ),*/
             Container(height: 75,),
-            Row(
+            /*Row(
               children: <Widget>[
                 Expanded(
                   child: Row(
@@ -672,26 +755,12 @@ class _SongScreenState extends State<SongScreen> {
                   ),
                 ),
               ],
-            ),
+            ),*/
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(width: 40,),
-                IconButton(
-                  icon: Icon(reproduciendo ? Icons.pause : Icons.play_arrow, size: 50,),
-                  onPressed: (){
-                    if (reproduciendo){
-                      //audioPlayer.stop();
-                    }else {
-                      //audioCache.play(_songs[currentSong]);
-                    }
 
-                    setState(() {
-                      reproduciendo = !reproduciendo;
-                    });
 
-                  },
-                ),
                 Container(width: 10,),
                 IconButton(
                   icon: Icon(Icons.skip_next, color: Colors.black, size: 50,),
